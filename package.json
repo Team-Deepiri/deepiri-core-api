@@ -2,13 +2,13 @@
   "name": "deepiri-api-server",
   "version": "3.0.0",
   "description": "Deepiri API Server - Microservices for Productivity Gamification",
-  "main": "server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "jest --passWithNoTests",
-    "build": "echo 'Nothing to build for Node server' && exit 0",
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "dev:all": "concurrently \"npm run dev\" \"cd ../frontend && npm run dev\"",
+    "test": "jest --passWithNoTests",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js"
   },
@@ -54,13 +54,28 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/compression": "^1.7.5",
+    "@types/cookie-parser": "^1.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.5",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.10.6",
+    "@types/node-cron": "^3.0.11",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
+    "@types/uuid": "^9.0.7",
+    "@types/winston": "^2.4.4",
     "@vitejs/plugin-react": "^4.4.0",
     "concurrently": "^9.1.2",
     "jest": "^25.0.0",
     "mongodb-memory-server": "^9.5.0",
     "nodemon": "^3.1.9",
     "supertest": "^6.3.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3",
     "vite": "^7.0.6"
   }
 }

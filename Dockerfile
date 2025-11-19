@@ -1,4 +1,27 @@
-# Use Node.js LTS version
+# Build stage
+FROM node:18-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies needed for build
+RUN apk add --no-cache python3 make g++
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies (including devDependencies for TypeScript compilation)
+RUN npm ci --legacy-peer-deps && \
+    npm cache clean --force
+
+# Copy source code
+COPY src ./src
+
+# Build TypeScript
+RUN npm run build
+
+# Production stage
 FROM node:18-alpine
 
 # Set working directory
@@ -10,18 +33,23 @@ RUN apk add --no-cache curl dumb-init
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies and clean up in one layer
+# Install only production dependencies
 RUN npm ci --only=production --legacy-peer-deps && \
     npm cache clean --force && \
     rm -rf /tmp/* /var/tmp/*
 
-# Copy source code
-COPY . .
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
 
-# Create non-root user and set up directories in one layer
+# Copy any additional files needed at runtime (config, etc.)
+COPY config ./config
+COPY scripts ./scripts
+
+# Create non-root user and set up directories
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
-    mkdir -p logs && chown -R nodejs:nodejs /app
+    mkdir -p logs && \
+    chown -R nodejs:nodejs /app
 
 # Switch to non-root user
 USER nodejs

@@ -16,4 +16,12 @@ coverage
 .nyc_output
 tests
 *.test.js
+*.test.ts
 *.spec.js
+*.spec.ts
+# Exclude dist in build stage (will be created during build)
+# Note: dist is needed in production stage, but we copy it from builder
+# Exclude development files
+*.swp
+*.swo
+*~

@@ -48,14 +48,12 @@ const challengeSchema = new Schema<IChallenge>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: true
   },
   taskId: {
     type: Schema.Types.ObjectId,
     ref: 'Task',
-    required: true,
-    index: true
+    required: true
   },
   type: {
     type: String,

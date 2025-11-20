@@ -30,8 +30,7 @@ const taskSchema = new Schema<ITask>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: true
   },
   title: {
     type: String,

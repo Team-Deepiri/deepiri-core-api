@@ -52,6 +52,8 @@ export interface IUser extends Document {
     createdAt: Date;
     expiresAt: Date;
   }>;
+  createdAt?: Date;
+  updatedAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   getPublicProfile(): any;
   updateStats(adventure: any): Promise<IUser>;

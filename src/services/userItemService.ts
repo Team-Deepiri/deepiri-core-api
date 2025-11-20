@@ -129,7 +129,7 @@ class UserItemService {
 
       await cacheService.set(cacheKey, items, 1800);
 
-      return items as IUserItem[];
+      return items as unknown as IUserItem[];
 
     } catch (error: any) {
       logger.error('Failed to get user items:', error);
@@ -419,7 +419,7 @@ class UserItemService {
         .skip(skip)
         .lean();
 
-      return items as IUserItem[];
+      return items as unknown as IUserItem[];
 
     } catch (error: any) {
       logger.error('Failed to search user items:', error);
@@ -441,7 +441,7 @@ class UserItemService {
       .skip(skip)
       .lean();
 
-      return sharedItems as IUserItem[];
+      return sharedItems as unknown as IUserItem[];
 
     } catch (error: any) {
       logger.error('Failed to get shared items:', error);
@@ -474,7 +474,7 @@ class UserItemService {
         .skip(skip)
         .lean();
 
-      return items as IUserItem[];
+      return items as unknown as IUserItem[];
 
     } catch (error: any) {
       logger.error('Failed to get public items:', error);
@@ -504,7 +504,7 @@ class UserItemService {
       await cacheService.clearUserCache(userId);
 
       logger.info(`Bulk created ${createdItems.length} items for user ${userId}`);
-      return createdItems;
+      return createdItems as unknown as IUserItem[];
 
     } catch (error: any) {
       logger.error('Failed to bulk create items:', error);

@@ -8,12 +8,15 @@ import rateLimit from 'express-rate-limit';
 import path from 'path';
 import mongoose from 'mongoose';
 import { createServer, Server as HttpServer } from 'http';
-import { Server as SocketIOServer, Socket } from 'socket.io';
+import { Server as SocketIOServer } from 'socket.io';
 import dotenv from 'dotenv';
 import promClient from 'prom-client';
 import { v4 as uuidv4 } from 'uuid';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
+
+// Import types
+import { CustomSocket } from './types';
 
 // Import services
 import adventureService from './services/adventureService';
@@ -53,11 +56,6 @@ dotenv.config();
 const app: Express = express();
 const server: HttpServer = createServer(app);
 
-// Extend Socket interface for custom properties
-interface CustomSocket extends Socket {
-  userId?: string;
-}
-
 const io = new SocketIOServer(server, {
   cors: {
     origin: process.env.CORS_ORIGIN || ["http://localhost:5173", "http://localhost:3000"],
@@ -69,8 +67,6 @@ const io = new SocketIOServer(server, {
   pingInterval: 25000,
   upgradeTimeout: 30000,
   allowEIO3: true, // Allow Engine.IO v3 clients
-  // Enable compression for better performance
-  compression: true,
   // Configure transport options
   transports: ['websocket', 'polling'],
   allowUpgrades: true,

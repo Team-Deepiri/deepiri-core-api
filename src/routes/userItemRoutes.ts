@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import Joi from 'joi';
 import userItemService from '../services/userItemService';
 import logger from '../utils/logger';
@@ -10,14 +10,9 @@ import {
   itemRateLimit,
   auditItemOperation
 } from '../middleware/userItemAuth';
+import { AuthenticatedRequest, UserItemRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-  };
-}
 
 router.use(validateUserId);
 router.use(itemRateLimit(100, 15 * 60 * 1000));
@@ -228,7 +223,7 @@ router.get('/shared', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.get('/public', async (req: Request, res: Response) => {
+router.get('/public', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { category, limit = '50', page = '1', sort = 'createdAt', order = 'desc' } = req.query;
 

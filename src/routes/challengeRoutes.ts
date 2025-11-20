@@ -1,15 +1,10 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Response, NextFunction } from 'express';
 import challengeService from '../services/challengeService';
 import authenticateJWT from '../middleware/authenticateJWT';
 import logger from '../utils/logger';
+import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
 
 router.post('/generate', authenticateJWT, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {

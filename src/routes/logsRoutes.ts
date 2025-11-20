@@ -3,12 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import authenticateJWT from '../middleware/authenticateJWT';
 import logger from '../utils/logger';
+import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  requestId?: string;
-}
 
 const isDocker = process.env.NODE_ENV === 'production' || process.env.DOCKER === 'true' || fs.existsSync('/.dockerenv');
 const defaultLogsDir = isDocker ? '/app/logs' : path.join(process.cwd(), 'logs');
@@ -245,7 +242,7 @@ router.get('/search', authenticateJWT, (req: AuthenticatedRequest, res: Response
   }
 });
 
-router.post('/', (req: Request, res: Response) => {
+router.post('/', (req: Request, res: Response): void => {
   res.status(204).end();
 });
 

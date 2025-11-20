@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Joi from 'joi';
 import userService from '../services/userService';
@@ -57,13 +57,13 @@ router.post('/register', async (req: Request, res: Response) => {
         roles: user.roles
       },
       process.env.JWT_SECRET || '',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 
     const refreshToken = crypto.randomBytes(32).toString('hex');
     const rtTtlDays = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || '30');
     const expiresAt = new Date(Date.now() + rtTtlDays * 24 * 60 * 60 * 1000);
-    user.refreshTokens.push({ token: refreshToken, expiresAt });
+    user.refreshTokens.push({ token: refreshToken, createdAt: new Date(), expiresAt });
     await user.save();
 
     res.cookie('refresh_token', refreshToken, {
@@ -123,7 +123,7 @@ router.post('/login', async (req: Request, res: Response) => {
         email: user.email 
       },
       process.env.JWT_SECRET || '',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 
     logger.info(`User logged in: ${user.email}`);
@@ -203,7 +203,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
         roles: user.roles
       },
       process.env.JWT_SECRET || '',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 
     res.json({

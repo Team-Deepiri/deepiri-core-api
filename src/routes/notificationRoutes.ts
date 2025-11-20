@@ -1,14 +1,9 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import Notification from '../models/Notification';
 import logger from '../utils/logger';
+import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-  };
-}
 
 router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {

@@ -1,18 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import UserItem from '../models/UserItem';
 import logger from '../utils/logger';
+import { UserItemRequest } from '../types';
 
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-  };
-  item?: any;
-  isOwner?: boolean;
-  isShared?: boolean;
-  isPublic?: boolean;
-}
-
-export const verifyItemOwnership = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const verifyItemOwnership = async (req: UserItemRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { itemId } = req.params;
     const userId = req.user?.userId;
@@ -51,7 +42,7 @@ export const verifyItemOwnership = async (req: AuthenticatedRequest, res: Respon
   }
 };
 
-export const verifySharedItemAccess = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const verifySharedItemAccess = async (req: UserItemRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { itemId } = req.params;
     const userId = req.user?.userId;
@@ -100,7 +91,7 @@ export const verifySharedItemAccess = async (req: AuthenticatedRequest, res: Res
   }
 };
 
-export const verifyEditPermission = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const verifyEditPermission = (req: UserItemRequest, res: Response, next: NextFunction): void => {
   if (!req.isOwner) {
     res.status(403).json({
       success: false,
@@ -111,7 +102,7 @@ export const verifyEditPermission = (req: AuthenticatedRequest, res: Response, n
   next();
 };
 
-export const validateUserId = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const validateUserId = (req: UserItemRequest, res: Response, next: NextFunction): void => {
   const userId = req.user?.userId;
   
   if (!userId) {
@@ -136,7 +127,7 @@ export const validateUserId = (req: AuthenticatedRequest, res: Response, next: N
 export const itemRateLimit = (maxRequests: number = 100, windowMs: number = 15 * 60 * 1000) => {
   const requests = new Map<string, number[]>();
 
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (req: UserItemRequest, res: Response, next: NextFunction): void => {
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -170,10 +161,10 @@ export const itemRateLimit = (maxRequests: number = 100, windowMs: number = 15 *
 };
 
 export const auditItemOperation = (operation: string) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (req: UserItemRequest, res: Response, next: NextFunction): void => {
     const originalSend = res.send.bind(res);
     
-    res.send = function(data: any) {
+    res.send = function(data: any): Response {
       const logData = {
         operation,
         userId: req.user?.userId,
@@ -186,7 +177,7 @@ export const auditItemOperation = (operation: string) => {
 
       logger.info('Item operation audit:', logData);
       
-      originalSend(data);
+      return originalSend(data);
     };
 
     next();

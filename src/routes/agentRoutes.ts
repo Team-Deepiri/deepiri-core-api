@@ -1,15 +1,10 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import Joi from 'joi';
 import agentService from '../services/agentService';
 import logger from '../utils/logger';
+import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-  };
-}
 
 const createSessionSchema = Joi.object({
   title: Joi.string().max(120).optional(),

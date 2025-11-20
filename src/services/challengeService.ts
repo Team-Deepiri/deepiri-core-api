@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Challenge, { IChallenge } from '../models/Challenge';
 import Task from '../models/Task';
 import Gamification from '../models/Gamification';
@@ -51,7 +52,13 @@ const challengeService = {
 
       await challenge.save();
 
-      task.challengeId = challenge._id;
+      if (!challenge._id) {
+        throw new Error('Failed to create challenge');
+      }
+      const challengeId = challenge._id instanceof mongoose.Types.ObjectId 
+        ? challenge._id 
+        : new mongoose.Types.ObjectId(String(challenge._id));
+      task.challengeId = challengeId;
       await task.save();
 
       logger.info(`Challenge generated: ${challenge._id} for task: ${taskId}`);

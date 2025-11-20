@@ -1,18 +1,11 @@
 import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Joi from 'joi';
 import Event from '../models/Event';
 import logger from '../utils/logger';
+import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-    name?: string;
-    email?: string;
-  };
-  io?: any;
-}
 
 const createEventSchema = Joi.object({
   name: Joi.string().min(2).max(150).required(),
@@ -267,7 +260,7 @@ router.post('/:eventId/join', async (req: AuthenticatedRequest, res: Response) =
       return;
     }
 
-    await event.addAttendee(userId);
+    await event.addAttendee(new mongoose.Types.ObjectId(userId));
 
     if (req.io) {
       req.io.to(`event_${eventId}`).emit('user_joined', {
@@ -306,7 +299,7 @@ router.post('/:eventId/leave', async (req: AuthenticatedRequest, res: Response) 
       return;
     }
 
-    await event.removeAttendee(userId);
+    await event.removeAttendee(new mongoose.Types.ObjectId(userId));
 
     if (req.io) {
       req.io.to(`event_${eventId}`).emit('user_left', {
@@ -355,7 +348,7 @@ router.post('/:eventId/review', async (req: AuthenticatedRequest, res: Response)
       return;
     }
 
-    await event.addReview(userId, value.rating, value.comment);
+    await event.addReview(new mongoose.Types.ObjectId(userId), value.rating, value.comment);
 
     res.json({
       success: true,
@@ -457,7 +450,7 @@ router.get('/user/events', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.get('/categories', async (req: Request, res: Response) => {
+router.get('/categories', async (req: Request, res: Response): Promise<void> => {
   try {
     const categories = [
       { id: 'nightlife', name: 'Nightlife', icon: '🌃' },

@@ -1,17 +1,10 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import Joi from 'joi';
 import userService from '../services/userService';
 import logger from '../utils/logger';
+import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-    name?: string;
-    email?: string;
-  };
-}
 
 const updateUserSchema = Joi.object({
   name: Joi.string().min(2).max(100).optional(),

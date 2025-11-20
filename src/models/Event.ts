@@ -390,6 +390,11 @@ eventSchema.statics.findByCategory = function(category: string, lat: number, lng
   return (this as any).findByLocationAndTime(lat, lng, radius).where('category', category);
 };
 
-const Event: Model<IEvent> = mongoose.model<IEvent>('Event', eventSchema);
+interface IEventModel extends Model<IEvent> {
+  findByLocationAndTime(lat: number, lng: number, radius?: number, startTime?: Date, endTime?: Date): Promise<IEvent[]>;
+  findByCategory(category: string, lat: number, lng: number, radius?: number): Promise<IEvent[]>;
+}
+
+const Event = mongoose.model<IEvent, IEventModel>('Event', eventSchema);
 export default Event;
 

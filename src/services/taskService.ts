@@ -2,6 +2,7 @@ import Task, { ITask } from '../models/Task';
 import Challenge from '../models/Challenge';
 import Gamification from '../models/Gamification';
 import analyticsService from './analyticsService';
+import gamificationIntegrationService from './gamificationIntegrationService';
 import logger from '../utils/logger';
 import mongoose from 'mongoose';
 
@@ -152,6 +153,9 @@ const taskService = {
 
       await this.awardTaskCompletion(userId, task);
       await analyticsService.recordTaskCompletion(userId, task);
+      
+      // Award momentum through new gamification service
+      await gamificationIntegrationService.awardTaskCompletion(userId, task);
 
       logger.info(`Task completed: ${taskId} for user: ${userId}`);
       return task;

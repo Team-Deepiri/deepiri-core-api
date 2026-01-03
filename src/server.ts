@@ -50,6 +50,7 @@ import ipFilter from './middleware/ipFilter';
 import sanitize from './middleware/sanitize';
 import rateBot from './middleware/rateBot';
 import auditLogger from './middleware/auditLogger';
+import { perEndpointLimiter } from './middleware/perEndpointLimiter';
 
 dotenv.config();
 
@@ -141,6 +142,9 @@ const limiter = rateLimit({
   }
 });
 app.use('/api/', limiter);
+
+// Per-endpoint rate limiting
+app.use('/api/', perEndpointLimiter);
 
 // Extend Express Request interface
 declare global {

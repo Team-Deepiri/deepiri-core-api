@@ -1,4 +1,5 @@
 import { createClient, RedisClientType } from 'redis';
+import CircuitBreaker from 'opossum';
 import logger from '../utils/logger';
 
 class CacheService {
@@ -18,8 +19,24 @@ class CacheService {
       
       const finalRedisUrl = process.env.REDIS_URL || redisUrl;
       
+      const maxReconnectAttempts = parseInt(process.env.REDIS_RECONNECT_MAX_ATTEMPTS || '12', 10);
+      const maxReconnectDelay = parseInt(process.env.REDIS_RECONNECT_MAX_DELAY_MS || '30000', 10);
+
       this.client = createClient({
-        url: finalRedisUrl
+        url: finalRedisUrl,
+        socket: {
+          // connectTimeout in ms
+          connectTimeout: parseInt(process.env.REDIS_CONNECT_TIMEOUT_MS || '10000', 10),
+          // reconnectStrategy receives the number of attempts and should return delay in ms or false to stop
+          reconnectStrategy: (retries: number) => {
+            if (retries > maxReconnectAttempts) return false;
+            // exponential backoff with jitter
+            const base = 100; // ms
+            const exp = Math.min(maxReconnectDelay, Math.floor(base * Math.pow(2, retries)));
+            const jitter = Math.floor(Math.random() * base);
+            return Math.min(maxReconnectDelay, exp + jitter);
+          }
+        }
       });
 
       this.client.on('error', (err: Error) => {
@@ -43,10 +60,40 @@ class CacheService {
       });
 
       await this.client.connect();
+
+  // create a circuit breaker that wraps Redis operations
+      const breakerOptions: CircuitBreaker.Options = {
+        errorThresholdPercentage: parseInt(process.env.REDIS_BREAKER_ERROR_THRESHOLD_PCT || '50', 10),
+        timeout: parseInt(process.env.REDIS_BREAKER_TIMEOUT_MS || '5000', 10),
+        resetTimeout: parseInt(process.env.REDIS_BREAKER_RESET_MS || '30000', 10),
+        rollingCountTimeout: 10000,
+        rollingCountBuckets: 10
+      };
+
+      const action = async (fn: () => Promise<any>) => {
+        return fn();
+      };
+
+  const breaker = new CircuitBreaker(action, breakerOptions);
+      breaker.on('open', () => logger.warn('Redis circuit open'));
+      breaker.on('halfOpen', () => logger.info('Redis circuit half-open'));
+      breaker.on('close', () => logger.info('Redis circuit closed'));
+      breaker.on('failure', (err) => logger.warn('Redis circuit failure', { err: err?.message }));
+
+      // attach breaker to instance for use by methods
+      (this as any)._breaker = breaker;
     } catch (error: any) {
       logger.error('Failed to initialize Redis:', error);
       this.isConnected = false;
     }
+  }
+
+  getBreakerState(): 'open' | 'halfOpen' | 'closed' | 'unknown' {
+    const breaker: CircuitBreaker | undefined = (this as any)._breaker;
+    if (!breaker) return 'unknown';
+    if ((breaker as any).opened) return 'open';
+    if ((breaker as any).halfOpen) return 'halfOpen';
+    return 'closed';
   }
 
   getConnectionStatus(): boolean {
@@ -60,11 +107,23 @@ class CacheService {
         return null;
       }
 
-      const value = await this.client.get(key);
-      if (value) {
-        return JSON.parse(value);
+      const breaker: CircuitBreaker | undefined = (this as any)._breaker;
+      if (breaker && breaker.opened) {
+        logger.warn('Redis breaker open - treating as cache miss for get', { key });
+        return null; // fail-fast as cache miss
       }
-      return null;
+
+      const exec = async () => {
+        const value = await this.client!.get(key);
+        if (value) return JSON.parse(value);
+        return null;
+      };
+
+      if (breaker) {
+        return await breaker.fire(exec);
+      }
+
+      return await exec();
     } catch (error: any) {
       logger.error(`Cache get error for key ${key}:`, error);
       return null;
@@ -78,8 +137,22 @@ class CacheService {
         return;
       }
 
-      const stringValue = JSON.stringify(value);
-      await this.client.setEx(key, ttl, stringValue);
+      const breaker: CircuitBreaker | undefined = (this as any)._breaker;
+      if (breaker && breaker.opened) {
+        logger.warn('Redis breaker open - skipping cache set', { key });
+        return; // skip writes while breaker open
+      }
+
+      const exec = async () => {
+        const stringValue = JSON.stringify(value);
+        await this.client!.setEx(key, ttl, stringValue);
+      };
+
+      if (breaker) {
+        await breaker.fire(exec);
+      } else {
+        await exec();
+      }
     } catch (error: any) {
       logger.error(`Cache set error for key ${key}:`, error);
     }
@@ -91,7 +164,21 @@ class CacheService {
         return;
       }
 
-      await this.client.del(key);
+      const breaker: CircuitBreaker | undefined = (this as any)._breaker;
+      if (breaker && breaker.opened) {
+        logger.warn('Redis breaker open - skipping delete', { key });
+        return;
+      }
+
+      const exec = async () => {
+        await this.client!.del(key);
+      };
+
+      if (breaker) {
+        await breaker.fire(exec);
+      } else {
+        await exec();
+      }
     } catch (error: any) {
       logger.error(`Cache delete error for key ${key}:`, error);
     }

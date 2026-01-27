@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import mongoose from 'mongoose';
+import pRetry from 'p-retry';
 import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from 'dotenv';
@@ -41,6 +42,7 @@ import challengeRoutes from './routes/challengeRoutes';
 import gamificationRoutes from './routes/gamificationRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import integrationRoutes from './routes/integrationRoutes';
+import internalRoutes from './routes/internalRoutes';
 
 // Import middleware
 import authenticateJWT from './middleware/authenticateJWT';
@@ -142,6 +144,9 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Mount internal routes (health & debugging) under /internal
+app.use('/internal', internalRoutes);
+
 // Extend Express Request interface
 declare global {
   namespace Express {
@@ -203,20 +208,46 @@ if (swaggerEnabled) {
   }, swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: false }));
 }
 
-// Database connection
+// Database connection with bounded retries
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/deepiri';
-mongoose.connect(mongoUri)
-.then(() => {
-  logger.info('Connected to MongoDB');
-})
-.catch((error: Error) => {
-  logger.error('MongoDB connection error:', error);
-  process.exit(1);
-});
 
-// Initialize services
-cacheService.initialize();
-aiOrchestrator.initialize();
+async function connectWithRetry() {
+  const maxRetries = parseInt(process.env.MONGO_CONNECT_MAX_RETRIES || '5', 10);
+  const serverSelectionTimeoutMS = parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '5000', 10);
+  const connectTimeoutMS = parseInt(process.env.MONGODB_CONNECT_TIMEOUT_MS || '10000', 10);
+
+  const connectAttempt = async () => {
+    // mongoose.connect returns a promise
+    return mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS,
+      connectTimeoutMS
+    } as any);
+  };
+
+  try {
+    await pRetry(connectAttempt, {
+      retries: maxRetries,
+      onFailedAttempt: (err) => {
+        logger.warn('MongoDB connection attempt failed', { attempt: (err as any).attemptNumber, retriesLeft: (err as any).retriesLeft, message: err.message });
+      }
+    });
+    logger.info('Connected to MongoDB');
+  } catch (err: any) {
+    logger.error('MongoDB connection error after retries:', err);
+    process.exit(1);
+  }
+}
+
+// Initialize services after DB connected
+connectWithRetry()
+  .then(() => {
+    cacheService.initialize();
+    aiOrchestrator.initialize();
+  })
+  .catch((err) => {
+    logger.error('Failed during startup:', err);
+    process.exit(1);
+  });
 
 // Socket.IO connection handling
 io.on('connection', (socket: CustomSocket) => {

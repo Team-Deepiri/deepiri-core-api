@@ -1,8 +1,8 @@
-import axios, { AxiosInstance } from 'axios';
 import http from 'http';
 import https from 'https';
 import logger from '../utils/logger';
 import cacheService from './cacheService';
+import httpClient from '../utils/httpClient';
 
 interface Location {
   lat: number;
@@ -16,7 +16,7 @@ class ExternalApiService {
   private openWeatherApiKey: string | undefined;
   private eventbriteApiKey: string | undefined;
   private yelpApiKey: string | undefined;
-  private httpClient: AxiosInstance | null = null;
+  private httpClient: any | null = null;
 
   constructor() {
     this.googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -26,32 +26,7 @@ class ExternalApiService {
     this.yelpApiKey = process.env.YELP_API_KEY;
   }
 
-  getHttpClient(): AxiosInstance {
-    if (!this.httpClient) {
-      const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 100 });
-      const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 100 });
-      this.httpClient = axios.create({
-        timeout: 10000,
-        httpAgent,
-        httpsAgent,
-        validateStatus: (s) => s >= 200 && s < 300
-      });
-    }
-    return this.httpClient;
-  }
-
-  async safeGet(url: string, options: any = {}, retries: number = 2): Promise<any> {
-    const client = this.getHttpClient();
-    let attempt = 0;
-    while (true) {
-      try {
-        return await client.get(url, options);
-      } catch (err: any) {
-        attempt++;
-        if (attempt > retries) throw err;
-      }
-    }
-  }
+  // Using centralized httpClient for retries and circuit-breakers
 
   async getNearbyPlaces(location: Location, radius: number = 5000, type: string = 'establishment', keyword: string | null = null): Promise<any[]> {
     try {
@@ -73,7 +48,7 @@ class ExternalApiService {
         params.keyword = keyword;
       }
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       if (response.data.status !== 'OK') {
         throw new Error(`Google Places API error: ${response.data.status}`);
@@ -120,7 +95,7 @@ class ExternalApiService {
         key: this.googleMapsApiKey
       };
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       if (response.data.status !== 'OK') {
         throw new Error(`Google Places Details API error: ${response.data.status}`);
@@ -176,7 +151,7 @@ class ExternalApiService {
         key: this.googleMapsApiKey
       };
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       if (response.data.status !== 'OK') {
         throw new Error(`Google Directions API error: ${response.data.status}`);
@@ -235,7 +210,7 @@ class ExternalApiService {
         units: 'imperial'
       };
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       const weather = {
         condition: response.data.weather[0].main,
@@ -275,7 +250,7 @@ class ExternalApiService {
         units: 'imperial'
       };
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       const forecast = response.data.list.slice(0, days * 8).map((item: any) => ({
         time: new Date(item.dt * 1000),
@@ -319,12 +294,7 @@ class ExternalApiService {
         params.categories = category;
       }
 
-      const response = await axios.get(url, {
-        params,
-        headers: {
-          'Authorization': `Bearer ${this.eventbriteApiKey}`
-        }
-      });
+      const response = await httpClient.httpRequest({ url, method: 'get', params, headers: { 'Authorization': `Bearer ${this.eventbriteApiKey}` } });
 
       const events = response.data.events.map((event: any) => ({
         eventId: event.id,
@@ -381,12 +351,7 @@ class ExternalApiService {
         params.categories = category;
       }
 
-      const response = await axios.get(url, {
-        params,
-        headers: {
-          'Authorization': `Bearer ${this.yelpApiKey}`
-        }
-      });
+      const response = await httpClient.httpRequest({ url, method: 'get', params, headers: { 'Authorization': `Bearer ${this.yelpApiKey}` } });
 
       const businesses = response.data.businesses.map((business: any) => ({
         businessId: business.id,
@@ -429,7 +394,7 @@ class ExternalApiService {
         key: this.googleMapsApiKey
       };
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       if (response.data.status !== 'OK') {
         throw new Error(`Google Geocoding API error: ${response.data.status}`);
@@ -467,7 +432,7 @@ class ExternalApiService {
         key: this.googleMapsApiKey
       };
 
-      const response = await axios.get(url, { params });
+  const response = await httpClient.httpRequest({ url, method: 'get', params });
       
       if (response.data.status !== 'OK') {
         throw new Error(`Google Reverse Geocoding API error: ${response.data.status}`);

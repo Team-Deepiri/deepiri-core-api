@@ -1,4 +1,4 @@
-import axios from 'axios';
+import httpClient from '../utils/httpClient';
 import logger from '../utils/logger';
 
 const ENGAGEMENT_SERVICE_URL = process.env.ENGAGEMENT_SERVICE_URL || 'http://localhost:5003';
@@ -13,22 +13,24 @@ class GamificationIntegrationService {
       const momentumAmount = this.calculateTaskMomentum(taskData);
       
       // Award momentum
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/momentum/award`, {
-        userId,
-        amount: momentumAmount,
-        source: 'tasks',
-        metadata: {
-          taskId: taskData._id,
-          taskType: taskData.type,
-          efficiency: taskData.completionData?.efficiency
+      await httpClient.httpRequest({
+        serviceName: 'engagement',
+        url: '/momentum/award',
+        method: 'post',
+        data: {
+          userId,
+          amount: momentumAmount,
+          source: 'tasks',
+          metadata: {
+            taskId: taskData._id,
+            taskType: taskData.type,
+            efficiency: taskData.completionData?.efficiency
+          }
         }
       });
 
       // Update daily streak
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/streaks/update`, {
-        userId,
-        streakType: 'daily'
-      });
+  await httpClient.httpRequest({ serviceName: 'engagement', url: '/streaks/update', method: 'post', data: { userId, streakType: 'daily' } });
 
       logger.info(`Gamification awarded for task completion: ${taskData._id}`);
     } catch (error: any) {
@@ -44,21 +46,23 @@ class GamificationIntegrationService {
     try {
       const momentumAmount = this.calculateChallengeMomentum(challengeData);
       
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/momentum/award`, {
-        userId,
-        amount: momentumAmount,
-        source: 'tasks',
-        metadata: {
-          challengeId: challengeData._id,
-          challengeType: challengeData.type,
-          score: challengeData.completionData?.score
+      await httpClient.httpRequest({
+        serviceName: 'engagement',
+        url: '/momentum/award',
+        method: 'post',
+        data: {
+          userId,
+          amount: momentumAmount,
+          source: 'tasks',
+          metadata: {
+            challengeId: challengeData._id,
+            challengeType: challengeData.type,
+            score: challengeData.completionData?.score
+          }
         }
       });
 
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/streaks/update`, {
-        userId,
-        streakType: 'daily'
-      });
+  await httpClient.httpRequest({ serviceName: 'engagement', url: '/streaks/update', method: 'post', data: { userId, streakType: 'daily' } });
 
       logger.info(`Gamification awarded for challenge completion: ${challengeData._id}`);
     } catch (error: any) {
@@ -73,18 +77,20 @@ class GamificationIntegrationService {
     try {
       const momentumAmount = this.calculateCommitMomentum(commitData);
       
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/momentum/award`, {
-        userId,
-        amount: momentumAmount,
-        source: 'commits',
-        metadata: commitData
+      await httpClient.httpRequest({
+        serviceName: 'engagement',
+        url: '/momentum/award',
+        method: 'post',
+        data: {
+          userId,
+          amount: momentumAmount,
+          source: 'commits',
+          metadata: commitData
+        }
       });
 
       // Update PR streak
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/streaks/update`, {
-        userId,
-        streakType: 'pr'
-      });
+      await httpClient.httpRequest({ serviceName: 'engagement', url: '/streaks/update', method: 'post', data: { userId, streakType: 'pr' } });
 
       logger.info(`Gamification awarded for commit: ${commitData.commitId}`);
     } catch (error: any) {
@@ -99,11 +105,16 @@ class GamificationIntegrationService {
     try {
       const momentumAmount = this.calculateDocMomentum(docData);
       
-      await axios.post(`${ENGAGEMENT_SERVICE_URL}/momentum/award`, {
-        userId,
-        amount: momentumAmount,
-        source: 'docs',
-        metadata: docData
+      await httpClient.httpRequest({
+        serviceName: 'engagement',
+        url: '/momentum/award',
+        method: 'post',
+        data: {
+          userId,
+          amount: momentumAmount,
+          source: 'docs',
+          metadata: docData
+        }
       });
 
       logger.info(`Gamification awarded for document activity`);

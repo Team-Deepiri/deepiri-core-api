@@ -2,7 +2,6 @@ import Integration, { IIntegration } from '../models/Integration';
 import Task from '../models/Task';
 import taskService from './taskService';
 import logger from '../utils/logger';
-import axios from 'axios';
 
 interface Credentials {
   accessToken?: string;

@@ -4,7 +4,7 @@ import Task from '../models/Task';
 import Gamification from '../models/Gamification';
 import analyticsService from './analyticsService';
 import logger from '../utils/logger';
-import axios from 'axios';
+import httpClient from '../utils/httpClient';
 
 interface ChallengeFilters {
   status?: string;
@@ -71,22 +71,29 @@ const challengeService = {
 
   async callAIChallengeService(task: any): Promise<any> {
     try {
+      // Use centralized HTTP client which provides retries and breakers
       const pythonAgentUrl = process.env.CYREX_URL || 'http://localhost:8000';
-      const response = await axios.post(`${pythonAgentUrl}/agent/challenge/generate`, {
-        task: {
-          title: task.title,
-          description: task.description,
-          type: task.type,
-          estimatedDuration: task.estimatedDuration
-        }
-      }, {
-        headers: {
-          'x-api-key': process.env.CYREX_API_KEY || ''
-        },
-        timeout: 30000
-      });
-
-      return response.data.data || {};
+      try {
+        const resp = await httpClient.httpRequest({
+          serviceName: 'pythonAgent',
+          url: `/agent/challenge/generate`,
+          method: 'post',
+          data: {
+            task: {
+              title: task.title,
+              description: task.description,
+              type: task.type,
+              estimatedDuration: task.estimatedDuration
+            }
+          },
+          headers: { 'x-api-key': process.env.CYREX_API_KEY || '' },
+          timeout: 30000
+        });
+        return (resp as any).data?.data || {};
+      } catch (err: any) {
+        logger.warn('AI challenge service unavailable or failed, falling back', { err: err?.message });
+        throw err; // let outer catch generate fallback
+      }
     } catch (error: any) {
       logger.error('Error calling AI challenge service:', error);
       return {

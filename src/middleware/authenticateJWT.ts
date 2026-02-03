@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
 import logger from '../utils/logger';
 import { jwtConfig } from '../config/jwtConfig';
+import { tokenRevocationService } from '../services/tokenRevocationService';
 
 interface JWTPayload {
   userId: string;
@@ -41,7 +42,7 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction):
         issuer: jwtConfig.issuer,
         audience: jwtConfig.audience,
       }
-    ) as JWTPayload;
+    ) as JWTPayload & { jti?: string };
     
     // Additional validation
     if (!decoded.userId || !decoded.email) {
@@ -67,6 +68,18 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction):
         message: 'Access denied. Account is deactivated.'
       });
       return;
+    }
+
+    // Check token revocation
+    if (decoded.jti) {
+      const isRevoked = await tokenRevocationService.isTokenRevoked(decoded.jti);
+      if (isRevoked) {
+        res.status(401).json({
+          success: false,
+          message: 'Access denied. Token has been revoked.'
+        });
+        return;
+      }
     }
 
     // Set user context

@@ -3,7 +3,7 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Joi from 'joi';
 import userService from '../services/userService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import AuditLog from '../models/AuditLog';
@@ -73,7 +73,7 @@ router.post('/register', async (req: Request, res: Response) => {
       expires: expiresAt
     });
 
-    logger.info(`User registered: ${user.email}`);
+    secureLog('info', `User registered: ${user.email}`);
     try { await AuditLog.create({ userId: user._id, action: 'register', ip: req.ip, userAgent: req.get('User-Agent') }); } catch {}
 
     res.status(201).json({
@@ -86,7 +86,7 @@ router.post('/register', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Registration failed:', error);
+    secureLog('error', 'Registration failed:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -126,7 +126,7 @@ router.post('/login', async (req: Request, res: Response) => {
       { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 
-    logger.info(`User logged in: ${user.email}`);
+    secureLog('info', `User logged in: ${user.email}`);
     try { await AuditLog.create({ userId: user._id, action: 'login', ip: req.ip, userAgent: req.get('User-Agent') }); } catch {}
 
     res.json({
@@ -139,7 +139,7 @@ router.post('/login', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Login failed:', error);
+    secureLog('error', 'Login failed:', error);
     res.status(401).json({
       success: false,
       message: 'Invalid credentials'
@@ -172,7 +172,7 @@ router.get('/verify', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Token verification failed:', error);
+    secureLog('error', 'Token verification failed:', error);
     res.status(401).json({
       success: false,
       message: 'Invalid token'
@@ -216,7 +216,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Token refresh failed:', error);
+    secureLog('error', 'Token refresh failed:', error);
     res.status(401).json({
       success: false,
       message: 'Invalid token'
@@ -239,7 +239,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     try {
       await userService.getUserByEmail(email);
       
-      logger.info(`Password reset requested for: ${email}`);
+      secureLog('info', `Password reset requested for: ${email}`);
       
       res.json({
         success: true,
@@ -253,7 +253,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     }
 
   } catch (error: any) {
-    logger.error('Forgot password failed:', error);
+    secureLog('error', 'Forgot password failed:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -273,7 +273,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       return;
     }
 
-    logger.info('Password reset attempted');
+    secureLog('info', 'Password reset attempted');
     
     res.json({
       success: true,
@@ -281,7 +281,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Password reset failed:', error);
+    secureLog('error', 'Password reset failed:', error);
     res.status(400).json({
       success: false,
       message: 'Invalid or expired reset token'

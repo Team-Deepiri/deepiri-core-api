@@ -1,6 +1,6 @@
 import Gamification, { IGamification } from '../models/Gamification';
 import Badge from '../models/Badge';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 const gamificationService = {
   async getOrCreateProfile(userId: string): Promise<IGamification> {
@@ -14,7 +14,7 @@ const gamificationService = {
       
       return profile;
     } catch (error: any) {
-      logger.error('Error getting gamification profile:', error);
+      secureLog('error', 'Error getting gamification profile:', error);
       throw error;
     }
   },
@@ -35,7 +35,7 @@ const gamificationService = {
 
       return leaderboard;
     } catch (error: any) {
-      logger.error('Error fetching leaderboard:', error);
+      secureLog('error', 'Error fetching leaderboard:', error);
       throw error;
     }
   },
@@ -53,7 +53,7 @@ const gamificationService = {
 
       return higherScorers + 1;
     } catch (error: any) {
-      logger.error('Error calculating user rank:', error);
+      secureLog('error', 'Error calculating user rank:', error);
       throw error;
     }
   },
@@ -84,10 +84,10 @@ const gamificationService = {
 
       await profile.save();
 
-      logger.info(`Badge awarded: ${badge.name} to user: ${userId}`);
+      secureLog('info', `Badge awarded: ${badge.name} to user: ${userId}`);
       return profile;
     } catch (error: any) {
-      logger.error('Error awarding badge:', error);
+      secureLog('error', 'Error awarding badge:', error);
       throw error;
     }
   },
@@ -136,7 +136,7 @@ const gamificationService = {
 
       return awardedBadges;
     } catch (error: any) {
-      logger.error('Error checking badges:', error);
+      secureLog('error', 'Error checking badges:', error);
       throw error;
     }
   },
@@ -153,7 +153,7 @@ const gamificationService = {
       await profile.save();
       return profile;
     } catch (error: any) {
-      logger.error('Error updating preferences:', error);
+      secureLog('error', 'Error updating preferences:', error);
       throw error;
     }
   }

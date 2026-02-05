@@ -1,5 +1,5 @@
 import Redis from 'ioredis';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import UserItem from '../models/UserItem';
 
 class TokenRevocationService {
@@ -13,7 +13,7 @@ class TokenRevocationService {
   async revokeToken(tokenId: string, expiresIn: number): Promise<void> {
     const key = `${this.prefix}${tokenId}`;
     await this.redis.setex(key, expiresIn, '1');
-    logger.info(`Token revoked: ${tokenId}`);
+    secureLog('info', `Token revoked: ${tokenId}`);
   }
 
   async isTokenRevoked(tokenId: string): Promise<boolean> {
@@ -106,14 +106,14 @@ class TokenRevocationService {
     }).lean();
 
     if (!items.length) {
-      logger.info(`No token items found for user: ${userId}`);
+      secureLog('info', `No token items found for user: ${userId}`);
       return;
     }
 
     const revokeTasks = items.map(async (item: any) => {
       const tokenId = resolveTokenId(item);
       if (!tokenId) {
-        logger.warn(`Skipping token item without tokenId for user: ${userId}`);
+        secureLog('warn', `Skipping token item without tokenId for user: ${userId}`);
         return;
       }
 
@@ -122,7 +122,7 @@ class TokenRevocationService {
     });
 
     await Promise.all(revokeTasks);
-    logger.info(`All user tokens revoked for user: ${userId}`);
+    secureLog('info', `All user tokens revoked for user: ${userId}`);
   }
 }
 

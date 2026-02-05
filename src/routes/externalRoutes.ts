@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import externalApiService from '../services/externalApiService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.get('/places/nearby', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get nearby places:', error);
+    secureLog('error', 'Failed to get nearby places:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -49,7 +49,7 @@ router.get('/places/:placeId', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get place details:', error);
+    secureLog('error', 'Failed to get place details:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -80,7 +80,7 @@ router.get('/directions', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get directions:', error);
+    secureLog('error', 'Failed to get directions:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -109,7 +109,7 @@ router.get('/weather/current', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get current weather:', error);
+    secureLog('error', 'Failed to get current weather:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -138,7 +138,7 @@ router.get('/weather/forecast', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get weather forecast:', error);
+    secureLog('error', 'Failed to get weather forecast:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -171,7 +171,7 @@ router.get('/events/nearby', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get nearby events:', error);
+    secureLog('error', 'Failed to get nearby events:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -205,7 +205,7 @@ router.get('/businesses/nearby', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get nearby businesses:', error);
+    secureLog('error', 'Failed to get nearby businesses:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -233,7 +233,7 @@ router.get('/geocode', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to geocode address:', error);
+    secureLog('error', 'Failed to geocode address:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -262,7 +262,7 @@ router.get('/reverse-geocode', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to reverse geocode:', error);
+    secureLog('error', 'Failed to reverse geocode:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -297,7 +297,7 @@ router.get('/adventure-data', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get adventure data:', error);
+    secureLog('error', 'Failed to get adventure data:', error);
     res.status(500).json({
       success: false,
       message: error.message

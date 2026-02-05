@@ -2,7 +2,7 @@ import Analytics, { IAnalytics } from '../models/Analytics';
 import Task from '../models/Task';
 import Challenge from '../models/Challenge';
 import Gamification from '../models/Gamification';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 const analyticsService = {
   async recordTaskCompletion(userId: string, task: any): Promise<IAnalytics> {
@@ -48,7 +48,7 @@ const analyticsService = {
       
       return analytics;
     } catch (error: any) {
-      logger.error('Error recording task completion:', error);
+      secureLog('error', 'Error recording task completion:', error);
       throw error;
     }
   },
@@ -79,7 +79,7 @@ const analyticsService = {
       await analytics.save();
       return analytics;
     } catch (error: any) {
-      logger.error('Error recording challenge completion:', error);
+      secureLog('error', 'Error recording challenge completion:', error);
       throw error;
     }
   },
@@ -97,7 +97,7 @@ const analyticsService = {
 
       return analytics;
     } catch (error: any) {
-      logger.error('Error fetching user analytics:', error);
+      secureLog('error', 'Error fetching user analytics:', error);
       throw error;
     }
   },
@@ -171,7 +171,7 @@ const analyticsService = {
 
       return insights;
     } catch (error: any) {
-      logger.error('Error generating insights:', error);
+      secureLog('error', 'Error generating insights:', error);
       return [];
     }
   },
@@ -229,7 +229,7 @@ const analyticsService = {
 
       return stats;
     } catch (error: any) {
-      logger.error('Error fetching productivity stats:', error);
+      secureLog('error', 'Error fetching productivity stats:', error);
       throw error;
     }
   }

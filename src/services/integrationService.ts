@@ -1,7 +1,7 @@
 import Integration, { IIntegration } from '../models/Integration';
 import Task from '../models/Task';
 import taskService from './taskService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import axios from 'axios';
 
 interface Credentials {
@@ -34,10 +34,10 @@ const integrationService = {
 
       await this.syncIntegration(userId, service);
 
-      logger.info(`Integration connected: ${service} for user: ${userId}`);
+      secureLog('info', `Integration connected: ${service} for user: ${userId}`);
       return integration;
     } catch (error: any) {
-      logger.error('Error connecting integration:', error);
+      secureLog('error', 'Error connecting integration:', error);
       throw error;
     }
   },
@@ -53,10 +53,10 @@ const integrationService = {
       integration.credentials = {};
       await integration.save();
 
-      logger.info(`Integration disconnected: ${service} for user: ${userId}`);
+      secureLog('info', `Integration disconnected: ${service} for user: ${userId}`);
       return integration;
     } catch (error: any) {
-      logger.error('Error disconnecting integration:', error);
+      secureLog('error', 'Error disconnecting integration:', error);
       throw error;
     }
   },
@@ -66,7 +66,7 @@ const integrationService = {
       const integrations = await Integration.find({ userId });
       return integrations;
     } catch (error: any) {
-      logger.error('Error fetching integrations:', error);
+      secureLog('error', 'Error fetching integrations:', error);
       throw error;
     }
   },
@@ -97,7 +97,7 @@ const integrationService = {
           });
           createdTasks.push(task);
         } catch (error: any) {
-          logger.error('Error creating task from integration:', error);
+          secureLog('error', 'Error creating task from integration:', error);
         }
       }
 
@@ -107,10 +107,10 @@ const integrationService = {
       integration.syncStats.lastSyncSuccess = true;
       await integration.save();
 
-      logger.info(`Synced ${createdTasks.length} tasks from ${service} for user: ${userId}`);
+      secureLog('info', `Synced ${createdTasks.length} tasks from ${service} for user: ${userId}`);
       return { tasks: createdTasks, count: createdTasks.length };
     } catch (error: any) {
-      logger.error('Error syncing integration:', error);
+      secureLog('error', 'Error syncing integration:', error);
       
       const integration = await Integration.findOne({ userId, service });
       if (integration) {
@@ -139,28 +139,28 @@ const integrationService = {
           throw new Error(`Unsupported service: ${integration.service}`);
       }
     } catch (error: any) {
-      logger.error(`Error fetching tasks from ${integration.service}:`, error);
+      secureLog('error', `Error fetching tasks from ${integration.service}:`, error);
       throw error;
     }
   },
 
   async fetchNotionTasks(integration: IIntegration): Promise<any[]> {
-    logger.info('Notion integration not yet implemented');
+    secureLog('info', 'Notion integration not yet implemented');
     return [];
   },
 
   async fetchTrelloTasks(integration: IIntegration): Promise<any[]> {
-    logger.info('Trello integration not yet implemented');
+    secureLog('info', 'Trello integration not yet implemented');
     return [];
   },
 
   async fetchGithubTasks(integration: IIntegration): Promise<any[]> {
-    logger.info('GitHub integration not yet implemented');
+    secureLog('info', 'GitHub integration not yet implemented');
     return [];
   },
 
   async fetchGoogleDocsTasks(integration: IIntegration): Promise<any[]> {
-    logger.info('Google Docs integration not yet implemented');
+    secureLog('info', 'Google Docs integration not yet implemented');
     return [];
   },
 
@@ -187,7 +187,7 @@ const integrationService = {
 
       return results;
     } catch (error: any) {
-      logger.error('Error syncing all integrations:', error);
+      secureLog('error', 'Error syncing all integrations:', error);
       throw error;
     }
   }

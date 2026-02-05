@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/User';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { jwtConfig } from '../config/jwtConfig';
 import { tokenRevocationService } from '../services/tokenRevocationService';
 
@@ -93,7 +93,7 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction):
     next();
 
   } catch (error: any) {
-    logger.error('JWT authentication error:', {
+    secureLog('error', 'JWT authentication error:', {
       error: error.message,
       name: error.name,
       ip: req.ip,

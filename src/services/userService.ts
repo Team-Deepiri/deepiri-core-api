@@ -3,7 +3,7 @@ import Adventure from '../models/Adventure';
 import Event from '../models/Event';
 import Notification from '../models/Notification';
 import cacheService from './cacheService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import mongoose from 'mongoose';
 
 interface UserData {
@@ -68,11 +68,11 @@ class UserService {
 
       await cacheService.setUserPreferences(user._id.toString(), user.preferences);
 
-      logger.info(`New user created: ${user.email}`);
+      secureLog('info', `New user created: ${user.email}`);
       return user;
 
     } catch (error: any) {
-      logger.error('Failed to create user:', error);
+      secureLog('error', 'Failed to create user:', error);
       throw new Error(`Failed to create user: ${error.message}`);
     }
   }
@@ -106,7 +106,7 @@ class UserService {
 
       return user;
     } catch (error: any) {
-      logger.error('Failed to get user:', error);
+      secureLog('error', 'Failed to get user:', error);
       throw new Error(`Failed to get user: ${error.message}`);
     }
   }
@@ -120,7 +120,7 @@ class UserService {
 
       return user;
     } catch (error: any) {
-      logger.error('Failed to get user by email:', error);
+      secureLog('error', 'Failed to get user by email:', error);
       throw new Error(`Failed to get user: ${error.message}`);
     }
   }
@@ -143,11 +143,11 @@ class UserService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`User ${userId} updated`);
+      secureLog('info', `User ${userId} updated`);
       return user;
 
     } catch (error: any) {
-      logger.error('Failed to update user:', error);
+      secureLog('error', 'Failed to update user:', error);
       throw new Error(`Failed to update user: ${error.message}`);
     }
   }
@@ -166,11 +166,11 @@ class UserService {
 
       await cacheService.setUserPreferences(userId, user.preferences);
 
-      logger.info(`User ${userId} preferences updated`);
+      secureLog('info', `User ${userId} preferences updated`);
       return user;
 
     } catch (error: any) {
-      logger.error('Failed to update user preferences:', error);
+      secureLog('error', 'Failed to update user preferences:', error);
       throw new Error(`Failed to update user preferences: ${error.message}`);
     }
   }
@@ -193,11 +193,11 @@ class UserService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`User ${userId} location updated`);
+      secureLog('info', `User ${userId} location updated`);
       return user;
 
     } catch (error: any) {
-      logger.error('Failed to update user location:', error);
+      secureLog('error', 'Failed to update user location:', error);
       throw new Error(`Failed to update user location: ${error.message}`);
     }
   }
@@ -231,11 +231,11 @@ class UserService {
         `${user.name} added you as a friend!`
       );
 
-      logger.info(`User ${userId} added friend ${friendId}`);
+      secureLog('info', `User ${userId} added friend ${friendId}`);
       return { user, friend };
 
     } catch (error: any) {
-      logger.error('Failed to add friend:', error);
+      secureLog('error', 'Failed to add friend:', error);
       throw new Error(`Failed to add friend: ${error.message}`);
     }
   }
@@ -254,11 +254,11 @@ class UserService {
 
       await Promise.all([user.save(), friend.save()]);
 
-      logger.info(`User ${userId} removed friend ${friendId}`);
+      secureLog('info', `User ${userId} removed friend ${friendId}`);
       return { user, friend };
 
     } catch (error: any) {
-      logger.error('Failed to remove friend:', error);
+      secureLog('error', 'Failed to remove friend:', error);
       throw new Error(`Failed to remove friend: ${error.message}`);
     }
   }
@@ -272,7 +272,7 @@ class UserService {
 
       return user.friends as any;
     } catch (error: any) {
-      logger.error('Failed to get friends:', error);
+      secureLog('error', 'Failed to get friends:', error);
       throw new Error(`Failed to get friends: ${error.message}`);
     }
   }
@@ -291,7 +291,7 @@ class UserService {
 
       return users;
     } catch (error: any) {
-      logger.error('Failed to search users:', error);
+      secureLog('error', 'Failed to search users:', error);
       throw new Error(`Failed to search users: ${error.message}`);
     }
   }
@@ -320,7 +320,7 @@ class UserService {
       return stats;
 
     } catch (error: any) {
-      logger.error('Failed to get user stats:', error);
+      secureLog('error', 'Failed to get user stats:', error);
       throw new Error(`Failed to get user stats: ${error.message}`);
     }
   }
@@ -341,7 +341,7 @@ class UserService {
       return stats;
 
     } catch (error: any) {
-      logger.error('Failed to get adventure stats:', error);
+      secureLog('error', 'Failed to get adventure stats:', error);
       return {};
     }
   }
@@ -361,7 +361,7 @@ class UserService {
       return stats;
 
     } catch (error: any) {
-      logger.error('Failed to get event stats:', error);
+      secureLog('error', 'Failed to get event stats:', error);
       return {};
     }
   }
@@ -384,11 +384,11 @@ class UserService {
       user.favoriteVenues.push(venueData as any);
       await user.save();
 
-      logger.info(`User ${userId} added favorite venue: ${venueData.name}`);
+      secureLog('info', `User ${userId} added favorite venue: ${venueData.name}`);
       return user;
 
     } catch (error: any) {
-      logger.error('Failed to add favorite venue:', error);
+      secureLog('error', 'Failed to add favorite venue:', error);
       throw new Error(`Failed to add favorite venue: ${error.message}`);
     }
   }
@@ -406,11 +406,11 @@ class UserService {
 
       await user.save();
 
-      logger.info(`User ${userId} removed favorite venue: ${venueId}`);
+      secureLog('info', `User ${userId} removed favorite venue: ${venueId}`);
       return user;
 
     } catch (error: any) {
-      logger.error('Failed to remove favorite venue:', error);
+      secureLog('error', 'Failed to remove favorite venue:', error);
       throw new Error(`Failed to remove favorite venue: ${error.message}`);
     }
   }
@@ -438,7 +438,7 @@ class UserService {
       }));
 
     } catch (error: any) {
-      logger.error('Failed to get leaderboard:', error);
+      secureLog('error', 'Failed to get leaderboard:', error);
       throw new Error(`Failed to get leaderboard: ${error.message}`);
     }
   }
@@ -460,11 +460,11 @@ class UserService {
       await User.findByIdAndDelete(userId);
       await cacheService.clearUserCache(userId);
 
-      logger.info(`User ${userId} deleted`);
+      secureLog('info', `User ${userId} deleted`);
       return true;
 
     } catch (error: any) {
-      logger.error('Failed to delete user:', error);
+      secureLog('error', 'Failed to delete user:', error);
       throw new Error(`Failed to delete user: ${error.message}`);
     }
   }

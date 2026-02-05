@@ -3,7 +3,7 @@ import Challenge, { IChallenge } from '../models/Challenge';
 import Task from '../models/Task';
 import Gamification from '../models/Gamification';
 import analyticsService from './analyticsService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import axios from 'axios';
 
 interface ChallengeFilters {
@@ -61,10 +61,10 @@ const challengeService = {
       task.challengeId = challengeId;
       await task.save();
 
-      logger.info(`Challenge generated: ${challenge._id} for task: ${taskId}`);
+      secureLog('info', `Challenge generated: ${challenge._id} for task: ${taskId}`);
       return challenge;
     } catch (error: any) {
-      logger.error('Error generating challenge:', error);
+      secureLog('error', 'Error generating challenge:', error);
       throw error;
     }
   },
@@ -88,7 +88,7 @@ const challengeService = {
 
       return response.data.data || {};
     } catch (error: any) {
-      logger.error('Error calling AI challenge service:', error);
+      secureLog('error', 'Error calling AI challenge service:', error);
       return {
         type: 'timed_completion',
         title: `Complete: ${task.title}`,
@@ -123,7 +123,7 @@ const challengeService = {
       
       return challenges;
     } catch (error: any) {
-      logger.error('Error fetching challenges:', error);
+      secureLog('error', 'Error fetching challenges:', error);
       throw error;
     }
   },
@@ -137,7 +137,7 @@ const challengeService = {
       }
       return challenge;
     } catch (error: any) {
-      logger.error('Error fetching challenge:', error);
+      secureLog('error', 'Error fetching challenge:', error);
       throw error;
     }
   },
@@ -164,10 +164,10 @@ const challengeService = {
       await this.awardChallengeCompletion(userId, challenge);
       await analyticsService.recordChallengeCompletion(userId, challenge);
 
-      logger.info(`Challenge completed: ${challengeId} for user: ${userId}`);
+      secureLog('info', `Challenge completed: ${challengeId} for user: ${userId}`);
       return challenge;
     } catch (error: any) {
-      logger.error('Error completing challenge:', error);
+      secureLog('error', 'Error completing challenge:', error);
       throw error;
     }
   },
@@ -191,7 +191,7 @@ const challengeService = {
 
       await gamification.save();
     } catch (error: any) {
-      logger.error('Error awarding challenge completion:', error);
+      secureLog('error', 'Error awarding challenge completion:', error);
     }
   }
 };

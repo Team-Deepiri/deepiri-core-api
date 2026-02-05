@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 interface UserPreferences {
   interests: string[];
@@ -47,7 +47,7 @@ class AIOrchestrator {
   async initialize(): Promise<void> {
     try {
       if (!process.env.OPENAI_API_KEY) {
-        logger.warn('OpenAI API key not found, AI features will be disabled');
+        secureLog('warn', 'OpenAI API key not found, AI features will be disabled');
         return;
       }
 
@@ -57,9 +57,9 @@ class AIOrchestrator {
 
       await this.openai.models.list();
       this.isInitialized = true;
-      logger.info('AI Orchestrator initialized successfully');
+      secureLog('info', 'AI Orchestrator initialized successfully');
     } catch (error: any) {
-      logger.error('Failed to initialize AI Orchestrator:', error);
+      secureLog('error', 'Failed to initialize AI Orchestrator:', error);
       this.isInitialized = false;
     }
   }
@@ -110,7 +110,7 @@ class AIOrchestrator {
       try {
         adventure = JSON.parse(content || '{}');
       } catch (parseError: any) {
-        logger.error('Failed to parse AI response:', parseError);
+        secureLog('error', 'Failed to parse AI response:', parseError);
         throw new Error('Invalid AI response format');
       }
 
@@ -125,11 +125,11 @@ class AIOrchestrator {
         reasoning: this.generateReasoning(adventure, userPreferences, weather)
       };
 
-      logger.info(`Adventure generated in ${generationTime}ms with ${response.usage?.total_tokens || 0} tokens`);
+      secureLog('info', `Adventure generated in ${generationTime}ms with ${response.usage?.total_tokens || 0} tokens`);
       return adventure;
 
     } catch (error: any) {
-      logger.error('Adventure generation failed:', error);
+      secureLog('error', 'Adventure generation failed:', error);
       throw new Error(`AI adventure generation failed: ${error.message}`);
     }
   }
@@ -390,7 +390,7 @@ Suggest optimal time slots and nearby attractions in JSON format:
 
       return JSON.parse(response.choices[0].message.content || '{}');
     } catch (error: any) {
-      logger.error('Event suggestions generation failed:', error);
+      secureLog('error', 'Event suggestions generation failed:', error);
       throw new Error(`AI event suggestions failed: ${error.message}`);
     }
   }
@@ -444,7 +444,7 @@ Generate variations with different themes (e.g., "Food Focus", "Social Focus", "
 
       return JSON.parse(response.choices[0].message.content || '{}');
     } catch (error: any) {
-      logger.error('Adventure variations generation failed:', error);
+      secureLog('error', 'Adventure variations generation failed:', error);
       throw new Error(`AI adventure variations failed: ${error.message}`);
     }
   }

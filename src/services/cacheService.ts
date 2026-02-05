@@ -1,5 +1,5 @@
 import { createClient, RedisClientType } from 'redis';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 class CacheService {
   private client: RedisClientType | null = null;
@@ -23,28 +23,28 @@ class CacheService {
       });
 
       this.client.on('error', (err: Error) => {
-        logger.error('Redis Client Error:', err);
+        secureLog('error', 'Redis Client Error:', err);
         this.isConnected = false;
       });
 
       this.client.on('connect', () => {
-        logger.info('Redis client connected');
+        secureLog('info', 'Redis client connected');
         this.isConnected = true;
       });
 
       this.client.on('ready', () => {
-        logger.info('Redis client ready');
+        secureLog('info', 'Redis client ready');
         this.isConnected = true;
       });
 
       this.client.on('end', () => {
-        logger.info('Redis client disconnected');
+        secureLog('info', 'Redis client disconnected');
         this.isConnected = false;
       });
 
       await this.client.connect();
     } catch (error: any) {
-      logger.error('Failed to initialize Redis:', error);
+      secureLog('error', 'Failed to initialize Redis:', error);
       this.isConnected = false;
     }
   }
@@ -56,7 +56,7 @@ class CacheService {
   async get(key: string): Promise<any> {
     try {
       if (!this.isConnected || !this.client) {
-        logger.warn('Redis not connected, skipping cache get');
+        secureLog('warn', 'Redis not connected, skipping cache get');
         return null;
       }
 
@@ -66,7 +66,7 @@ class CacheService {
       }
       return null;
     } catch (error: any) {
-      logger.error(`Cache get error for key ${key}:`, error);
+      secureLog('error', `Cache get error for key ${key}:`, error);
       return null;
     }
   }
@@ -74,14 +74,14 @@ class CacheService {
   async set(key: string, value: any, ttl: number = 3600): Promise<void> {
     try {
       if (!this.isConnected || !this.client) {
-        logger.warn('Redis not connected, skipping cache set');
+        secureLog('warn', 'Redis not connected, skipping cache set');
         return;
       }
 
       const stringValue = JSON.stringify(value);
       await this.client.setEx(key, ttl, stringValue);
     } catch (error: any) {
-      logger.error(`Cache set error for key ${key}:`, error);
+      secureLog('error', `Cache set error for key ${key}:`, error);
     }
   }
 
@@ -93,7 +93,7 @@ class CacheService {
 
       await this.client.del(key);
     } catch (error: any) {
-      logger.error(`Cache delete error for key ${key}:`, error);
+      secureLog('error', `Cache delete error for key ${key}:`, error);
     }
   }
 
@@ -126,7 +126,7 @@ class CacheService {
         await this.client.del(keys);
       }
     } catch (error: any) {
-      logger.error(`Error clearing user cache for ${userId}:`, error);
+      secureLog('error', `Error clearing user cache for ${userId}:`, error);
     }
   }
 }

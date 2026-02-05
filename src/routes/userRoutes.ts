@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import Joi from 'joi';
 import userService from '../services/userService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -63,7 +63,7 @@ router.get('/profile', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user profile:', error);
+    secureLog('error', 'Failed to get user profile:', error);
     res.status(404).json({
       success: false,
       message: error.message
@@ -94,7 +94,7 @@ router.put('/profile', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to update user profile:', error);
+    secureLog('error', 'Failed to update user profile:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -125,7 +125,7 @@ router.put('/preferences', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to update user preferences:', error);
+    secureLog('error', 'Failed to update user preferences:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -156,7 +156,7 @@ router.put('/location', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to update user location:', error);
+    secureLog('error', 'Failed to update user location:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -175,7 +175,7 @@ router.get('/stats', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user stats:', error);
+    secureLog('error', 'Failed to get user stats:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -194,7 +194,7 @@ router.get('/friends', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get friends:', error);
+    secureLog('error', 'Failed to get friends:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -227,7 +227,7 @@ router.post('/friends', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to add friend:', error);
+    secureLog('error', 'Failed to add friend:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -251,7 +251,7 @@ router.delete('/friends/:friendId', async (req: AuthenticatedRequest, res: Respo
     });
 
   } catch (error: any) {
-    logger.error('Failed to remove friend:', error);
+    secureLog('error', 'Failed to remove friend:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -281,7 +281,7 @@ router.get('/search', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to search users:', error);
+    secureLog('error', 'Failed to search users:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -300,7 +300,7 @@ router.get('/favorite-venues', async (req: AuthenticatedRequest, res: Response) 
     });
 
   } catch (error: any) {
-    logger.error('Failed to get favorite venues:', error);
+    secureLog('error', 'Failed to get favorite venues:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -331,7 +331,7 @@ router.post('/favorite-venues', async (req: AuthenticatedRequest, res: Response)
     });
 
   } catch (error: any) {
-    logger.error('Failed to add favorite venue:', error);
+    secureLog('error', 'Failed to add favorite venue:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -353,7 +353,7 @@ router.delete('/favorite-venues/:venueId', async (req: AuthenticatedRequest, res
     });
 
   } catch (error: any) {
-    logger.error('Failed to remove favorite venue:', error);
+    secureLog('error', 'Failed to remove favorite venue:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -373,7 +373,7 @@ router.get('/leaderboard', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get leaderboard:', error);
+    secureLog('error', 'Failed to get leaderboard:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -392,7 +392,7 @@ router.get('/:userId', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user:', error);
+    secureLog('error', 'Failed to get user:', error);
     res.status(404).json({
       success: false,
       message: error.message
@@ -432,7 +432,7 @@ router.delete('/account', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to delete user account:', error);
+    secureLog('error', 'Failed to delete user account:', error);
     res.status(400).json({
       success: false,
       message: error.message

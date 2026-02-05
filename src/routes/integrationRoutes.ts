@@ -1,7 +1,7 @@
 import express, { Response, NextFunction } from 'express';
 import integrationService from '../services/integrationService';
 import authenticateJWT from '../middleware/authenticateJWT';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -11,7 +11,7 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
     const integrations = await integrationService.getUserIntegrations(req.user!.id);
     res.json({ success: true, data: integrations });
   } catch (error: any) {
-    logger.error('Error fetching integrations:', error);
+    secureLog('error', 'Error fetching integrations:', error);
     next(error);
   }
 });
@@ -33,7 +33,7 @@ router.post('/connect', authenticateJWT, async (req: AuthenticatedRequest, res: 
     );
     res.status(201).json({ success: true, data: integration });
   } catch (error: any) {
-    logger.error('Error connecting integration:', error);
+    secureLog('error', 'Error connecting integration:', error);
     next(error);
   }
 });
@@ -46,7 +46,7 @@ router.post('/:service/disconnect', authenticateJWT, async (req: AuthenticatedRe
     );
     res.json({ success: true, data: integration });
   } catch (error: any) {
-    logger.error('Error disconnecting integration:', error);
+    secureLog('error', 'Error disconnecting integration:', error);
     next(error);
   }
 });
@@ -59,7 +59,7 @@ router.post('/:service/sync', authenticateJWT, async (req: AuthenticatedRequest,
     );
     res.json({ success: true, data: result });
   } catch (error: any) {
-    logger.error('Error syncing integration:', error);
+    secureLog('error', 'Error syncing integration:', error);
     next(error);
   }
 });
@@ -69,7 +69,7 @@ router.post('/sync/all', authenticateJWT, async (req: AuthenticatedRequest, res:
     const results = await integrationService.syncAllIntegrations(req.user!.id);
     res.json({ success: true, data: results });
   } catch (error: any) {
-    logger.error('Error syncing all integrations:', error);
+    secureLog('error', 'Error syncing all integrations:', error);
     next(error);
   }
 });

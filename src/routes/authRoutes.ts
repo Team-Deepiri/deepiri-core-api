@@ -7,6 +7,7 @@ import { secureLog } from '../utils/secureLogger';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import AuditLog from '../models/AuditLog';
+import { validateSecret } from '@deepiri/shared-utils';
 
 const router = express.Router();
 router.use(cookieParser());
@@ -56,7 +57,7 @@ router.post('/register', async (req: Request, res: Response) => {
         email: user.email,
         roles: user.roles
       },
-      process.env.JWT_SECRET || '',
+      validateSecret('JWT_SECRET', process.env.JWT_SECRET, 32),
       { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 
@@ -122,7 +123,7 @@ router.post('/login', async (req: Request, res: Response) => {
         userId: user._id,
         email: user.email 
       },
-      process.env.JWT_SECRET || '',
+      validateSecret('JWT_SECRET', process.env.JWT_SECRET, 32),
       { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 
@@ -159,7 +160,7 @@ router.get('/verify', async (req: Request, res: Response) => {
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || '') as any;
+    const decoded = jwt.verify(token, validateSecret('JWT_SECRET', process.env.JWT_SECRET, 32)) as any;
     
     const user = await userService.getUserById(decoded.userId);
 
@@ -202,7 +203,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
         email: user.email,
         roles: user.roles
       },
-      process.env.JWT_SECRET || '',
+      validateSecret('JWT_SECRET', process.env.JWT_SECRET, 32),
       { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as SignOptions['expiresIn'] }
     );
 

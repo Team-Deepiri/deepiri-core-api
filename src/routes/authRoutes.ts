@@ -290,12 +290,36 @@ router.post('/reset-password', async (req: Request, res: Response) => {
 });
 
 router.post('/logout', async (req: Request, res: Response) => {
-  const token = (req as any).cookies?.refresh_token;
-  if (token) await userService.revokeRefreshToken(token);
-  res.clearCookie('refresh_token');
-  res.json({ success: true, message: 'Logged out successfully' });
-  try { await AuditLog.create({ action: 'logout', ip: req.ip, userAgent: req.get('User-Agent') }); } catch {}
+  try {
+    const token = (req as any).cookies?.refresh_token;
+
+    if (token) {
+      await userService.revokeRefreshToken(token);
+    }
+
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    try {
+      await AuditLog.create({
+        action: 'logout',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+      });
+    } catch {}
+
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch (error: any) {
+    logger.error('Logout failed:', error);
+    res.status(500).json({ success: false, message: 'Logout failed' });
+  }
 });
 
+
+
 export default router;
+
 

@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import Joi from 'joi';
 import adventureService from '../services/adventureService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { asyncHandler } from '../middleware/errorHandler';
 
 const router = express.Router();

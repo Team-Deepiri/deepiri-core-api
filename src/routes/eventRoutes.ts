@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Joi from 'joi';
 import Event from '../models/Event';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -109,7 +109,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Event creation failed:', error);
+    secureLog('error', 'Event creation failed:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -154,7 +154,7 @@ router.get('/nearby', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get nearby events:', error);
+    secureLog('error', 'Failed to get nearby events:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -184,7 +184,7 @@ router.get('/:eventId', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get event:', error);
+    secureLog('error', 'Failed to get event:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -238,7 +238,7 @@ router.put('/:eventId', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to update event:', error);
+    secureLog('error', 'Failed to update event:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -277,7 +277,7 @@ router.post('/:eventId/join', async (req: AuthenticatedRequest, res: Response) =
     });
 
   } catch (error: any) {
-    logger.error('Failed to join event:', error);
+    secureLog('error', 'Failed to join event:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -316,7 +316,7 @@ router.post('/:eventId/leave', async (req: AuthenticatedRequest, res: Response) 
     });
 
   } catch (error: any) {
-    logger.error('Failed to leave event:', error);
+    secureLog('error', 'Failed to leave event:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -357,7 +357,7 @@ router.post('/:eventId/review', async (req: AuthenticatedRequest, res: Response)
     });
 
   } catch (error: any) {
-    logger.error('Failed to add review:', error);
+    secureLog('error', 'Failed to add review:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -400,7 +400,7 @@ router.post('/:eventId/cancel', async (req: AuthenticatedRequest, res: Response)
     });
 
   } catch (error: any) {
-    logger.error('Failed to cancel event:', error);
+    secureLog('error', 'Failed to cancel event:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -442,7 +442,7 @@ router.get('/user/events', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user events:', error);
+    secureLog('error', 'Failed to get user events:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -470,7 +470,7 @@ router.get('/categories', async (req: Request, res: Response): Promise<void> => 
     });
 
   } catch (error: any) {
-    logger.error('Failed to get categories:', error);
+    secureLog('error', 'Failed to get categories:', error);
     res.status(500).json({
       success: false,
       message: error.message

@@ -45,7 +45,7 @@ import integrationRoutes from './routes/integrationRoutes';
 // Import middleware
 import authenticateJWT from './middleware/authenticateJWT';
 import { errorHandler, notFoundHandler, gracefulShutdown } from './middleware/errorHandler';
-import logger from './utils/logger';
+import { secureLog } from './utils/secureLogger';
 import ipFilter from './middleware/ipFilter';
 import sanitize from './middleware/sanitize';
 import rateBot from './middleware/rateBot';
@@ -160,7 +160,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req[x-request-id]', {
-  stream: { write: (message: string) => logger.info(message.trim()) }
+  stream: { write: (message: string) => secureLog('info', message.trim()) }
 }));
 
 // Metrics
@@ -207,10 +207,10 @@ if (swaggerEnabled) {
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/deepiri';
 mongoose.connect(mongoUri)
 .then(() => {
-  logger.info('Connected to MongoDB');
+  secureLog('info', 'Connected to MongoDB');
 })
 .catch((error: Error) => {
-  logger.error('MongoDB connection error:', error);
+  secureLog('error', 'MongoDB connection error:', error);
   process.exit(1);
 });
 
@@ -220,7 +220,7 @@ aiOrchestrator.initialize();
 
 // Socket.IO connection handling
 io.on('connection', (socket: CustomSocket) => {
-  logger.info(`User connected: ${socket.id}`);
+  secureLog('info', `User connected: ${socket.id}`);
   
   // Send immediate connection confirmation
   socket.emit('connection_confirmed', {
@@ -231,13 +231,13 @@ io.on('connection', (socket: CustomSocket) => {
   
   socket.on('join_user_room', (userId: string) => {
     socket.join(`user_${userId}`);
-    logger.info(`User ${userId} joined their room`);
+    secureLog('info', `User ${userId} joined their room`);
     socket.emit('room_joined', { room: `user_${userId}`, type: 'user' });
   });
   
   socket.on('join_adventure_room', (adventureId: string) => {
     socket.join(`adventure_${adventureId}`);
-    logger.info(`User joined adventure room: ${adventureId}`);
+    secureLog('info', `User joined adventure room: ${adventureId}`);
     socket.emit('room_joined', { room: `adventure_${adventureId}`, type: 'adventure' });
   });
 
@@ -251,7 +251,7 @@ io.on('connection', (socket: CustomSocket) => {
       socketId: socket.id,
       joinedAt: new Date().toISOString()
     });
-    logger.info(`User ${userId} joined collaboration room ${roomId}`);
+    secureLog('info', `User ${userId} joined collaboration room ${roomId}`);
   });
 
   socket.on('collaboration:leave', (data: { roomId: string }) => {
@@ -278,7 +278,7 @@ io.on('connection', (socket: CustomSocket) => {
       challengeConfig,
       timestamp: Date.now()
     });
-    logger.info(`Duel challenge sent from ${socket.id} to ${targetUserId}`);
+    secureLog('info', `Duel challenge sent from ${socket.id} to ${targetUserId}`);
   });
 
   socket.on('duel:accept', (data: { duelId: string; opponentUserId: string; challengeConfig?: { challengeType?: string; duration?: number } }) => {
@@ -297,7 +297,7 @@ io.on('connection', (socket: CustomSocket) => {
     
     socket.emit('duel:start', duelState);
     socket.to(`user_${data.opponentUserId}`).emit('duel:start', duelState);
-    logger.info(`Duel ${duelId} started`);
+    secureLog('info', `Duel ${duelId} started`);
   });
 
   socket.on('duel:reject', (data: { duelId: string; fromUserId: string }) => {
@@ -323,7 +323,7 @@ io.on('connection', (socket: CustomSocket) => {
       teamId,
       joinedAt: new Date().toISOString()
     });
-    logger.info(`User ${userId} joined team ${teamId}`);
+    secureLog('info', `User ${userId} joined team ${teamId}`);
   });
 
   socket.on('team:leave', (data: { teamId: string }) => {
@@ -371,11 +371,11 @@ io.on('connection', (socket: CustomSocket) => {
   }
   
   socket.on('disconnect', (reason: string) => {
-    logger.info(`User disconnected: ${socket.id}, reason: ${reason}`);
+    secureLog('info', `User disconnected: ${socket.id}, reason: ${reason}`);
   });
   
   socket.on('error', (error: Error) => {
-    logger.error(`Socket.IO error for ${socket.id}:`, error);
+    secureLog('error', `Socket.IO error for ${socket.id}:`, error);
   });
 });
 
@@ -445,8 +445,8 @@ process.on('SIGTERM', gracefulShutdown(server));
 process.on('SIGINT', gracefulShutdown(server));
 
 server.listen(PORT, () => {
-  logger.info(`Deepiri Server is running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  secureLog('info', `Deepiri Server is running on port ${PORT}`);
+  secureLog('info', `Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 export { app, server, io };

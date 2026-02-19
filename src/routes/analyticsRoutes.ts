@@ -1,7 +1,7 @@
 import express, { Response, NextFunction } from 'express';
 import analyticsService from '../services/analyticsService';
 import authenticateJWT from '../middleware/authenticateJWT';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
     const analytics = await analyticsService.getUserAnalytics(req.user!.id, days);
     res.json({ success: true, data: analytics });
   } catch (error: any) {
-    logger.error('Error fetching analytics:', error);
+    secureLog('error', 'Error fetching analytics:', error);
     next(error);
   }
 });
@@ -23,7 +23,7 @@ router.get('/stats', authenticateJWT, async (req: AuthenticatedRequest, res: Res
     const stats = await analyticsService.getProductivityStats(req.user!.id, period);
     res.json({ success: true, data: stats });
   } catch (error: any) {
-    logger.error('Error fetching productivity stats:', error);
+    secureLog('error', 'Error fetching productivity stats:', error);
     next(error);
   }
 });

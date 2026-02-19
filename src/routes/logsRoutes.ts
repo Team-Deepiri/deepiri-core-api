@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import authenticateJWT from '../middleware/authenticateJWT';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -54,7 +54,7 @@ const readLogFile = (filePath: string, limit: number = 1000): any => {
       lastModified: stats.mtime
     };
   } catch (error: any) {
-    logger.error('Error reading log file:', error);
+    secureLog('error', 'Error reading log file:', error);
     return { error: 'Failed to read log file' };
   }
 };
@@ -113,7 +113,7 @@ router.get('/', authenticateJWT, (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Error in logs route:', error);
+    secureLog('error', 'Error in logs route:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -154,7 +154,7 @@ router.get('/files', authenticateJWT, (req: AuthenticatedRequest, res: Response)
     });
 
   } catch (error: any) {
-    logger.error('Error listing log files:', error);
+    secureLog('error', 'Error listing log files:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -232,7 +232,7 @@ router.get('/search', authenticateJWT, (req: AuthenticatedRequest, res: Response
     });
 
   } catch (error: any) {
-    logger.error('Error searching logs:', error);
+    secureLog('error', 'Error searching logs:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error',

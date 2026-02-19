@@ -1,5 +1,5 @@
 import Notification, { INotification, NotificationType } from '../models/Notification';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 class NotificationService {
   private isRunning: boolean = false;
@@ -8,9 +8,9 @@ class NotificationService {
   async initialize(): Promise<void> {
     try {
       this.startProcessor();
-      logger.info('Notification service initialized');
+      secureLog('info', 'Notification service initialized');
     } catch (error: any) {
-      logger.error('Failed to initialize notification service:', error);
+      secureLog('error', 'Failed to initialize notification service:', error);
     }
   }
 
@@ -22,7 +22,7 @@ class NotificationService {
       await this.processPendingNotifications();
     }, 30000);
 
-    logger.info('Notification processor started');
+    secureLog('info', 'Notification processor started');
   }
 
   stopProcessor(): void {
@@ -31,7 +31,7 @@ class NotificationService {
       this.intervalId = null;
     }
     this.isRunning = false;
-    logger.info('Notification processor stopped');
+    secureLog('info', 'Notification processor stopped');
   }
 
   async processPendingNotifications(): Promise<void> {
@@ -43,10 +43,10 @@ class NotificationService {
       }
 
       if (pendingNotifications.length > 0) {
-        logger.info(`Processed ${pendingNotifications.length} pending notifications`);
+        secureLog('info', `Processed ${pendingNotifications.length} pending notifications`);
       }
     } catch (error: any) {
-      logger.error('Error processing pending notifications:', error);
+      secureLog('error', 'Error processing pending notifications:', error);
     }
   }
 
@@ -72,37 +72,37 @@ class NotificationService {
       await notification.markAsSent();
 
     } catch (error: any) {
-      logger.error(`Failed to send notification ${notification._id}:`, error);
+      secureLog('error', `Failed to send notification ${notification._id}:`, error);
       await notification.markAsFailed(error.message);
     }
   }
 
   async sendPushNotification(notification: INotification): Promise<boolean> {
     try {
-      logger.info(`Sending push notification to user ${notification.userId}: ${notification.message}`);
+      secureLog('info', `Sending push notification to user ${notification.userId}: ${notification.message}`);
       return true;
     } catch (error: any) {
-      logger.error('Push notification failed:', error);
+      secureLog('error', 'Push notification failed:', error);
       throw error;
     }
   }
 
   async sendEmailNotification(notification: INotification): Promise<boolean> {
     try {
-      logger.info(`Sending email notification to user ${notification.userId}: ${notification.message}`);
+      secureLog('info', `Sending email notification to user ${notification.userId}: ${notification.message}`);
       return true;
     } catch (error: any) {
-      logger.error('Email notification failed:', error);
+      secureLog('error', 'Email notification failed:', error);
       throw error;
     }
   }
 
   async sendSMSNotification(notification: INotification): Promise<boolean> {
     try {
-      logger.info(`Sending SMS notification to user ${notification.userId}: ${notification.message}`);
+      secureLog('info', `Sending SMS notification to user ${notification.userId}: ${notification.message}`);
       return true;
     } catch (error: any) {
-      logger.error('SMS notification failed:', error);
+      secureLog('error', 'SMS notification failed:', error);
       throw error;
     }
   }
@@ -121,10 +121,10 @@ class NotificationService {
         });
       }
 
-      logger.info(`Sent in-app notification to user ${notification.userId}`);
+      secureLog('info', `Sent in-app notification to user ${notification.userId}`);
       return true;
     } catch (error: any) {
-      logger.error('In-app notification failed:', error);
+      secureLog('error', 'In-app notification failed:', error);
       throw error;
     }
   }
@@ -139,10 +139,10 @@ class NotificationService {
         scheduledFor
       );
 
-      logger.info(`Created adventure notification for user ${userId}: ${type}`);
+      secureLog('info', `Created adventure notification for user ${userId}: ${type}`);
       return notification;
     } catch (error: any) {
-      logger.error('Failed to create adventure notification:', error);
+      secureLog('error', 'Failed to create adventure notification:', error);
       throw error;
     }
   }
@@ -157,10 +157,10 @@ class NotificationService {
         scheduledFor
       );
 
-      logger.info(`Created event notification for user ${userId}: ${type}`);
+      secureLog('info', `Created event notification for user ${userId}: ${type}`);
       return notification;
     } catch (error: any) {
-      logger.error('Failed to create event notification:', error);
+      secureLog('error', 'Failed to create event notification:', error);
       throw error;
     }
   }
@@ -174,10 +174,10 @@ class NotificationService {
         message
       );
 
-      logger.info(`Created friend notification for user ${userId}: ${type}`);
+      secureLog('info', `Created friend notification for user ${userId}: ${type}`);
       return notification;
     } catch (error: any) {
-      logger.error('Failed to create friend notification:', error);
+      secureLog('error', 'Failed to create friend notification:', error);
       throw error;
     }
   }
@@ -191,10 +191,10 @@ class NotificationService {
         data
       );
 
-      logger.info(`Created gamification notification for user ${userId}: ${type}`);
+      secureLog('info', `Created gamification notification for user ${userId}: ${type}`);
       return notification;
     } catch (error: any) {
-      logger.error('Failed to create gamification notification:', error);
+      secureLog('error', 'Failed to create gamification notification:', error);
       throw error;
     }
   }
@@ -228,9 +228,9 @@ class NotificationService {
         completionTime
       );
 
-      logger.info(`Scheduled reminders for adventure ${adventureId}`);
+      secureLog('info', `Scheduled reminders for adventure ${adventureId}`);
     } catch (error: any) {
-      logger.error('Failed to schedule adventure reminders:', error);
+      secureLog('error', 'Failed to schedule adventure reminders:', error);
     }
   }
 
@@ -244,9 +244,9 @@ class NotificationService {
         new Date()
       );
 
-      logger.info(`Sent weather alert to user ${userId}`);
+      secureLog('info', `Sent weather alert to user ${userId}`);
     } catch (error: any) {
-      logger.error('Failed to send weather alert:', error);
+      secureLog('error', 'Failed to send weather alert:', error);
     }
   }
 
@@ -261,9 +261,9 @@ class NotificationService {
         new Date()
       );
 
-      logger.info(`Sent venue change alert to user ${userId}`);
+      secureLog('info', `Sent venue change alert to user ${userId}`);
     } catch (error: any) {
-      logger.error('Failed to send venue change alert:', error);
+      secureLog('error', 'Failed to send venue change alert:', error);
     }
   }
 
@@ -278,9 +278,9 @@ class NotificationService {
         new Date()
       );
 
-      logger.info(`Sent friend joined notification to user ${userId}`);
+      secureLog('info', `Sent friend joined notification to user ${userId}`);
     } catch (error: any) {
-      logger.error('Failed to send friend joined notification:', error);
+      secureLog('error', 'Failed to send friend joined notification:', error);
     }
   }
 
@@ -293,9 +293,9 @@ class NotificationService {
         { badge }
       );
 
-      logger.info(`Sent badge earned notification to user ${userId}`);
+      secureLog('info', `Sent badge earned notification to user ${userId}`);
     } catch (error: any) {
-      logger.error('Failed to send badge earned notification:', error);
+      secureLog('error', 'Failed to send badge earned notification:', error);
     }
   }
 
@@ -308,9 +308,9 @@ class NotificationService {
         { points, reason }
       );
 
-      logger.info(`Sent points earned notification to user ${userId}`);
+      secureLog('info', `Sent points earned notification to user ${userId}`);
     } catch (error: any) {
-      logger.error('Failed to send points earned notification:', error);
+      secureLog('error', 'Failed to send points earned notification:', error);
     }
   }
 
@@ -323,19 +323,19 @@ class NotificationService {
         { streak }
       );
 
-      logger.info(`Sent streak reminder to user ${userId}`);
+      secureLog('info', `Sent streak reminder to user ${userId}`);
     } catch (error: any) {
-      logger.error('Failed to send streak reminder:', error);
+      secureLog('error', 'Failed to send streak reminder:', error);
     }
   }
 
   async cleanupOldNotifications(daysOld: number = 30): Promise<any> {
     try {
       const result = await Notification.cleanup(daysOld);
-      logger.info(`Cleaned up ${result.deletedCount} old notifications`);
+      secureLog('info', `Cleaned up ${result.deletedCount} old notifications`);
       return result;
     } catch (error: any) {
-      logger.error('Failed to cleanup old notifications:', error);
+      secureLog('error', 'Failed to cleanup old notifications:', error);
       throw error;
     }
   }
@@ -364,7 +364,7 @@ class NotificationService {
         breakdown: stats
       };
     } catch (error: any) {
-      logger.error('Failed to get notification stats:', error);
+      secureLog('error', 'Failed to get notification stats:', error);
       throw error;
     }
   }

@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import Joi from 'joi';
 import agentService from '../services/agentService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -30,7 +30,7 @@ router.post('/sessions', async (req: AuthenticatedRequest, res: Response) => {
     const session = await agentService.createSession(userId, value.title, value.settings);
     res.status(201).json({ success: true, data: session });
   } catch (err: any) {
-    logger.error('Failed to create agent session:', err);
+    secureLog('error', 'Failed to create agent session:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -43,7 +43,7 @@ router.get('/sessions', async (req: AuthenticatedRequest, res: Response) => {
     const sessions = await agentService.listSessions(userId, limit, offset);
     res.json({ success: true, data: sessions });
   } catch (err: any) {
-    logger.error('Failed to list sessions:', err);
+    secureLog('error', 'Failed to list sessions:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
@@ -61,7 +61,7 @@ router.post('/sessions/:sessionId/messages', async (req: AuthenticatedRequest, r
     const result = await agentService.sendMessage(sessionId, userId, value.content);
     res.json({ success: true, data: result });
   } catch (err: any) {
-    logger.error('Failed to send agent message:', err);
+    secureLog('error', 'Failed to send agent message:', err);
     res.status(400).json({ success: false, message: err.message });
   }
 });
@@ -73,7 +73,7 @@ router.post('/sessions/:sessionId/archive', async (req: AuthenticatedRequest, re
     const session = await agentService.archiveSession(sessionId, userId);
     res.json({ success: true, data: session });
   } catch (err: any) {
-    logger.error('Failed to archive session:', err);
+    secureLog('error', 'Failed to archive session:', err);
     res.status(400).json({ success: false, message: err.message });
   }
 });

@@ -1,7 +1,7 @@
 import express, { Response, NextFunction } from 'express';
 import gamificationService from '../services/gamificationService';
 import authenticateJWT from '../middleware/authenticateJWT';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -19,7 +19,7 @@ router.get('/profile', authenticateJWT, async (req: AuthenticatedRequest, res: R
       }
     });
   } catch (error: any) {
-    logger.error('Error fetching gamification profile:', error);
+    secureLog('error', 'Error fetching gamification profile:', error);
     next(error);
   }
 });
@@ -31,7 +31,7 @@ router.get('/leaderboard', authenticateJWT, async (req: AuthenticatedRequest, re
     const leaderboard = await gamificationService.getLeaderboard(limit, period);
     res.json({ success: true, data: leaderboard });
   } catch (error: any) {
-    logger.error('Error fetching leaderboard:', error);
+    secureLog('error', 'Error fetching leaderboard:', error);
     next(error);
   }
 });
@@ -41,7 +41,7 @@ router.get('/rank', authenticateJWT, async (req: AuthenticatedRequest, res: Resp
     const rank = await gamificationService.getUserRank(req.user!.id);
     res.json({ success: true, data: { rank } });
   } catch (error: any) {
-    logger.error('Error fetching rank:', error);
+    secureLog('error', 'Error fetching rank:', error);
     next(error);
   }
 });
@@ -51,7 +51,7 @@ router.post('/badges/check', authenticateJWT, async (req: AuthenticatedRequest, 
     const awardedBadges = await gamificationService.checkAndAwardBadges(req.user!.id);
     res.json({ success: true, data: { awardedBadges } });
   } catch (error: any) {
-    logger.error('Error checking badges:', error);
+    secureLog('error', 'Error checking badges:', error);
     next(error);
   }
 });
@@ -61,7 +61,7 @@ router.patch('/preferences', authenticateJWT, async (req: AuthenticatedRequest, 
     const profile = await gamificationService.updatePreferences(req.user!.id, req.body);
     res.json({ success: true, data: profile });
   } catch (error: any) {
-    logger.error('Error updating preferences:', error);
+    secureLog('error', 'Error updating preferences:', error);
     next(error);
   }
 });

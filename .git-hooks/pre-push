@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Pre-push hook to protect main, master, and team-dev branches
+# Pre-push hook to protect main and master branches
 # This hook receives ref information via stdin in the format:
 # <local_ref> <local_sha1> <remote_ref> <remote_sha1>
 

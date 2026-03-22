@@ -1,5 +1,5 @@
 import axios from 'axios';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 const ENGAGEMENT_SERVICE_URL = process.env.ENGAGEMENT_SERVICE_URL || 'http://localhost:5003';
 
@@ -30,9 +30,9 @@ class GamificationIntegrationService {
         streakType: 'daily'
       });
 
-      logger.info(`Gamification awarded for task completion: ${taskData._id}`);
+      secureLog('info', `Gamification awarded for task completion: ${taskData._id}`);
     } catch (error: any) {
-      logger.error('Failed to award gamification for task:', error.message);
+      secureLog('error', 'Failed to award gamification for task:', error.message);
       // Don't throw - gamification failures shouldn't break task completion
     }
   }
@@ -60,9 +60,9 @@ class GamificationIntegrationService {
         streakType: 'daily'
       });
 
-      logger.info(`Gamification awarded for challenge completion: ${challengeData._id}`);
+      secureLog('info', `Gamification awarded for challenge completion: ${challengeData._id}`);
     } catch (error: any) {
-      logger.error('Failed to award gamification for challenge:', error.message);
+      secureLog('error', 'Failed to award gamification for challenge:', error.message);
     }
   }
 
@@ -86,9 +86,9 @@ class GamificationIntegrationService {
         streakType: 'pr'
       });
 
-      logger.info(`Gamification awarded for commit: ${commitData.commitId}`);
+      secureLog('info', `Gamification awarded for commit: ${commitData.commitId}`);
     } catch (error: any) {
-      logger.error('Failed to award gamification for commit:', error.message);
+      secureLog('error', 'Failed to award gamification for commit:', error.message);
     }
   }
 
@@ -106,9 +106,9 @@ class GamificationIntegrationService {
         metadata: docData
       });
 
-      logger.info(`Gamification awarded for document activity`);
+      secureLog('info', `Gamification awarded for document activity`);
     } catch (error: any) {
-      logger.error('Failed to award gamification for document:', error.message);
+      secureLog('error', 'Failed to award gamification for document:', error.message);
     }
   }
 

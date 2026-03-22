@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import http from 'http';
 import https from 'https';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import cacheService from './cacheService';
 
 interface Location {
@@ -100,7 +100,7 @@ class ExternalApiService {
       return places;
 
     } catch (error: any) {
-      logger.error('Google Places API error:', error);
+      secureLog('error', 'Google Places API error:', error);
       throw new Error(`Failed to fetch nearby places: ${error.message}`);
     }
   }
@@ -155,7 +155,7 @@ class ExternalApiService {
       return details;
 
     } catch (error: any) {
-      logger.error('Google Places Details API error:', error);
+      secureLog('error', 'Google Places Details API error:', error);
       throw new Error(`Failed to fetch place details: ${error.message}`);
     }
   }
@@ -214,7 +214,7 @@ class ExternalApiService {
       return directions;
 
     } catch (error: any) {
-      logger.error('Google Directions API error:', error);
+      secureLog('error', 'Google Directions API error:', error);
       throw new Error(`Failed to get directions: ${error.message}`);
     }
   }
@@ -254,7 +254,7 @@ class ExternalApiService {
       return weather;
 
     } catch (error: any) {
-      logger.error('OpenWeather API error:', error);
+      secureLog('error', 'OpenWeather API error:', error);
       throw new Error(`Failed to fetch weather: ${error.message}`);
     }
   }
@@ -292,7 +292,7 @@ class ExternalApiService {
       return forecast;
 
     } catch (error: any) {
-      logger.error('OpenWeather Forecast API error:', error);
+      secureLog('error', 'OpenWeather Forecast API error:', error);
       throw new Error(`Failed to fetch weather forecast: ${error.message}`);
     }
   }
@@ -355,7 +355,7 @@ class ExternalApiService {
       return events;
 
     } catch (error: any) {
-      logger.error('Eventbrite API error:', error);
+      secureLog('error', 'Eventbrite API error:', error);
       throw new Error(`Failed to fetch events: ${error.message}`);
     }
   }
@@ -410,7 +410,7 @@ class ExternalApiService {
       return businesses;
 
     } catch (error: any) {
-      logger.error('Yelp API error:', error);
+      secureLog('error', 'Yelp API error:', error);
       throw new Error(`Failed to fetch businesses: ${error.message}`);
     }
   }
@@ -448,7 +448,7 @@ class ExternalApiService {
       return location;
 
     } catch (error: any) {
-      logger.error('Google Geocoding API error:', error);
+      secureLog('error', 'Google Geocoding API error:', error);
       throw new Error(`Failed to geocode address: ${error.message}`);
     }
   }
@@ -486,7 +486,7 @@ class ExternalApiService {
       return address;
 
     } catch (error: any) {
-      logger.error('Google Reverse Geocoding API error:', error);
+      secureLog('error', 'Google Reverse Geocoding API error:', error);
       throw new Error(`Failed to reverse geocode: ${error.message}`);
     }
   }
@@ -514,7 +514,7 @@ class ExternalApiService {
       };
 
     } catch (error: any) {
-      logger.error('Failed to fetch adventure data:', error);
+      secureLog('error', 'Failed to fetch adventure data:', error);
       throw new Error(`Failed to fetch adventure data: ${error.message}`);
     }
   }

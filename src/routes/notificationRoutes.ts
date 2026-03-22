@@ -1,6 +1,6 @@
 import express, { Response } from 'express';
 import Notification from '../models/Notification';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -19,7 +19,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get notifications:', error);
+    secureLog('error', 'Failed to get notifications:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -54,7 +54,7 @@ router.put('/:notificationId/read', async (req: AuthenticatedRequest, res: Respo
     });
 
   } catch (error: any) {
-    logger.error('Failed to mark notification as read:', error);
+    secureLog('error', 'Failed to mark notification as read:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -77,7 +77,7 @@ router.put('/read-all', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to mark all notifications as read:', error);
+    secureLog('error', 'Failed to mark all notifications as read:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -109,7 +109,7 @@ router.delete('/:notificationId', async (req: AuthenticatedRequest, res: Respons
     });
 
   } catch (error: any) {
-    logger.error('Failed to delete notification:', error);
+    secureLog('error', 'Failed to delete notification:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -137,7 +137,7 @@ router.get('/settings', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get notification settings:', error);
+    secureLog('error', 'Failed to get notification settings:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -150,7 +150,7 @@ router.put('/settings', async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user!.userId;
     const settings = req.body;
 
-    logger.info(`User ${userId} updated notification settings:`, settings);
+    secureLog('info', `User ${userId} updated notification settings:`, settings);
 
     res.json({
       success: true,
@@ -159,7 +159,7 @@ router.put('/settings', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to update notification settings:', error);
+    secureLog('error', 'Failed to update notification settings:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -182,7 +182,7 @@ router.get('/unread/count', async (req: AuthenticatedRequest, res: Response) => 
     });
 
   } catch (error: any) {
-    logger.error('Failed to get unread notification count:', error);
+    secureLog('error', 'Failed to get unread notification count:', error);
     res.status(500).json({
       success: false,
       message: error.message

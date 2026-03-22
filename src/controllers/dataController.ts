@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User';
+import { validateSecret } from '@deepiri/shared-utils';
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -40,7 +41,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, validateSecret('JWT_SECRET', process.env.JWT_SECRET, 32), { expiresIn: '1h' });
 
     res.json({ token });
   } catch (error: any) {

@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import Joi from 'joi';
 import userItemService from '../services/userItemService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import {
   verifyItemOwnership,
   verifySharedItemAccess,
@@ -122,7 +122,7 @@ router.get('/', auditItemOperation('list'), async (req: AuthenticatedRequest, re
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user items:', error);
+    secureLog('error', 'Failed to get user items:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -141,7 +141,7 @@ router.get('/stats', auditItemOperation('stats'), async (req: AuthenticatedReque
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user item stats:', error);
+    secureLog('error', 'Failed to get user item stats:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -184,7 +184,7 @@ router.get('/search', auditItemOperation('search'), async (req: AuthenticatedReq
     });
 
   } catch (error: any) {
-    logger.error('Failed to search user items:', error);
+    secureLog('error', 'Failed to search user items:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -215,7 +215,7 @@ router.get('/shared', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get shared items:', error);
+    secureLog('error', 'Failed to get shared items:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -246,7 +246,7 @@ router.get('/public', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to get public items:', error);
+    secureLog('error', 'Failed to get public items:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -273,7 +273,7 @@ router.get('/export', auditItemOperation('export'), async (req: AuthenticatedReq
     }
 
   } catch (error: any) {
-    logger.error('Failed to export user items:', error);
+    secureLog('error', 'Failed to export user items:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -294,7 +294,7 @@ router.get('/:itemId', verifySharedItemAccess, auditItemOperation('view'), async
     });
 
   } catch (error: any) {
-    logger.error('Failed to get user item:', error);
+    secureLog('error', 'Failed to get user item:', error);
     res.status(404).json({
       success: false,
       message: error.message
@@ -325,7 +325,7 @@ router.post('/', auditItemOperation('create'), async (req: AuthenticatedRequest,
     });
 
   } catch (error: any) {
-    logger.error('Failed to create user item:', error);
+    secureLog('error', 'Failed to create user item:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -367,7 +367,7 @@ router.post('/bulk', async (req: AuthenticatedRequest, res: Response) => {
     });
 
   } catch (error: any) {
-    logger.error('Failed to bulk create user items:', error);
+    secureLog('error', 'Failed to bulk create user items:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -399,7 +399,7 @@ router.put('/:itemId', verifyItemOwnership, auditItemOperation('update'), async 
     });
 
   } catch (error: any) {
-    logger.error('Failed to update user item:', error);
+    secureLog('error', 'Failed to update user item:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -421,7 +421,7 @@ router.patch('/:itemId/favorite', verifyItemOwnership, auditItemOperation('toggl
     });
 
   } catch (error: any) {
-    logger.error('Failed to toggle favorite:', error);
+    secureLog('error', 'Failed to toggle favorite:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -453,7 +453,7 @@ router.post('/:itemId/memories', verifyItemOwnership, auditItemOperation('add_me
     });
 
   } catch (error: any) {
-    logger.error('Failed to add memory:', error);
+    secureLog('error', 'Failed to add memory:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -485,7 +485,7 @@ router.post('/:itemId/share', verifyItemOwnership, auditItemOperation('share'), 
     });
 
   } catch (error: any) {
-    logger.error('Failed to share item:', error);
+    secureLog('error', 'Failed to share item:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -507,7 +507,7 @@ router.delete('/:itemId', verifyItemOwnership, auditItemOperation('delete'), asy
     });
 
   } catch (error: any) {
-    logger.error('Failed to delete user item:', error);
+    secureLog('error', 'Failed to delete user item:', error);
     res.status(400).json({
       success: false,
       message: error.message

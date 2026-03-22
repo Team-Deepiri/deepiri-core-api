@@ -3,7 +3,7 @@ import Challenge from '../models/Challenge';
 import Gamification from '../models/Gamification';
 import analyticsService from './analyticsService';
 import gamificationIntegrationService from './gamificationIntegrationService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import mongoose from 'mongoose';
 
 interface TaskData {
@@ -41,10 +41,10 @@ const taskService = {
         ...taskData
       });
       await task.save();
-      logger.info(`Task created: ${task._id} for user: ${userId}`);
+      secureLog('info', `Task created: ${task._id} for user: ${userId}`);
       return task;
     } catch (error: any) {
-      logger.error('Error creating task:', error);
+      secureLog('error', 'Error creating task:', error);
       throw error;
     }
   },
@@ -73,7 +73,7 @@ const taskService = {
       
       return tasks;
     } catch (error: any) {
-      logger.error('Error fetching tasks:', error);
+      secureLog('error', 'Error fetching tasks:', error);
       throw error;
     }
   },
@@ -86,7 +86,7 @@ const taskService = {
       }
       return task;
     } catch (error: any) {
-      logger.error('Error fetching task:', error);
+      secureLog('error', 'Error fetching task:', error);
       throw error;
     }
   },
@@ -103,10 +103,10 @@ const taskService = {
         throw new Error('Task not found');
       }
       
-      logger.info(`Task updated: ${taskId} for user: ${userId}`);
+      secureLog('info', `Task updated: ${taskId} for user: ${userId}`);
       return task;
     } catch (error: any) {
-      logger.error('Error updating task:', error);
+      secureLog('error', 'Error updating task:', error);
       throw error;
     }
   },
@@ -122,10 +122,10 @@ const taskService = {
         await Challenge.findByIdAndDelete(task.challengeId);
       }
       
-      logger.info(`Task deleted: ${taskId} for user: ${userId}`);
+      secureLog('info', `Task deleted: ${taskId} for user: ${userId}`);
       return task;
     } catch (error: any) {
-      logger.error('Error deleting task:', error);
+      secureLog('error', 'Error deleting task:', error);
       throw error;
     }
   },
@@ -157,10 +157,10 @@ const taskService = {
       // Award momentum through new gamification service
       await gamificationIntegrationService.awardTaskCompletion(userId, task);
 
-      logger.info(`Task completed: ${taskId} for user: ${userId}`);
+      secureLog('info', `Task completed: ${taskId} for user: ${userId}`);
       return task;
     } catch (error: any) {
-      logger.error('Error completing task:', error);
+      secureLog('error', 'Error completing task:', error);
       throw error;
     }
   },
@@ -190,7 +190,7 @@ const taskService = {
 
       await gamification.save();
     } catch (error: any) {
-      logger.error('Error awarding task completion:', error);
+      secureLog('error', 'Error awarding task completion:', error);
     }
   },
 

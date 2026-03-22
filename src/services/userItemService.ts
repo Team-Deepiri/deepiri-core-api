@@ -1,7 +1,7 @@
 import UserItem, { IUserItem } from '../models/UserItem';
 import User from '../models/User';
 import cacheService from './cacheService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import mongoose from 'mongoose';
 
 interface ItemData {
@@ -75,11 +75,11 @@ class UserItemService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`User item created: ${userItem.name} for user ${userId}`);
+      secureLog('info', `User item created: ${userItem.name} for user ${userId}`);
       return userItem;
 
     } catch (error: any) {
-      logger.error('Failed to create user item:', error);
+      secureLog('error', 'Failed to create user item:', error);
       throw new Error(`Failed to create user item: ${error.message}`);
     }
   }
@@ -132,7 +132,7 @@ class UserItemService {
       return items as unknown as IUserItem[];
 
     } catch (error: any) {
-      logger.error('Failed to get user items:', error);
+      secureLog('error', 'Failed to get user items:', error);
       throw new Error(`Failed to get user items: ${error.message}`);
     }
   }
@@ -152,7 +152,7 @@ class UserItemService {
       return item;
 
     } catch (error: any) {
-      logger.error('Failed to get user item:', error);
+      secureLog('error', 'Failed to get user item:', error);
       throw new Error(`Failed to get user item: ${error.message}`);
     }
   }
@@ -194,11 +194,11 @@ class UserItemService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`User item ${itemId} updated for user ${userId}`);
+      secureLog('info', `User item ${itemId} updated for user ${userId}`);
       return item;
 
     } catch (error: any) {
-      logger.error('Failed to update user item:', error);
+      secureLog('error', 'Failed to update user item:', error);
       throw new Error(`Failed to update user item: ${error.message}`);
     }
   }
@@ -224,11 +224,11 @@ class UserItemService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`User item ${itemId} ${permanent ? 'permanently deleted' : 'soft deleted'} for user ${userId}`);
+      secureLog('info', `User item ${itemId} ${permanent ? 'permanently deleted' : 'soft deleted'} for user ${userId}`);
       return true;
 
     } catch (error: any) {
-      logger.error('Failed to delete user item:', error);
+      secureLog('error', 'Failed to delete user item:', error);
       throw new Error(`Failed to delete user item: ${error.message}`);
     }
   }
@@ -241,11 +241,11 @@ class UserItemService {
       
       await cacheService.clearUserCache(userId);
 
-      logger.info(`Memory added to item ${itemId} for user ${userId}`);
+      secureLog('info', `Memory added to item ${itemId} for user ${userId}`);
       return item;
 
     } catch (error: any) {
-      logger.error('Failed to add item memory:', error);
+      secureLog('error', 'Failed to add item memory:', error);
       throw new Error(`Failed to add item memory: ${error.message}`);
     }
   }
@@ -259,11 +259,11 @@ class UserItemService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`Item ${itemId} favorite toggled for user ${userId}`);
+      secureLog('info', `Item ${itemId} favorite toggled for user ${userId}`);
       return item;
 
     } catch (error: any) {
-      logger.error('Failed to toggle favorite:', error);
+      secureLog('error', 'Failed to toggle favorite:', error);
       throw new Error(`Failed to toggle favorite: ${error.message}`);
     }
   }
@@ -290,11 +290,11 @@ class UserItemService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`Item ${itemId} shared by user ${userId}`);
+      secureLog('info', `Item ${itemId} shared by user ${userId}`);
       return item;
 
     } catch (error: any) {
-      logger.error('Failed to share item:', error);
+      secureLog('error', 'Failed to share item:', error);
       throw new Error(`Failed to share item: ${error.message}`);
     }
   }
@@ -335,7 +335,7 @@ class UserItemService {
       return fullStats;
 
     } catch (error: any) {
-      logger.error('Failed to get user item stats:', error);
+      secureLog('error', 'Failed to get user item stats:', error);
       throw new Error(`Failed to get user item stats: ${error.message}`);
     }
   }
@@ -359,7 +359,7 @@ class UserItemService {
       return stats;
 
     } catch (error: any) {
-      logger.error('Failed to get category stats:', error);
+      secureLog('error', 'Failed to get category stats:', error);
       return [];
     }
   }
@@ -381,7 +381,7 @@ class UserItemService {
       return stats;
 
     } catch (error: any) {
-      logger.error('Failed to get rarity stats:', error);
+      secureLog('error', 'Failed to get rarity stats:', error);
       return [];
     }
   }
@@ -422,7 +422,7 @@ class UserItemService {
       return items as unknown as IUserItem[];
 
     } catch (error: any) {
-      logger.error('Failed to search user items:', error);
+      secureLog('error', 'Failed to search user items:', error);
       throw new Error(`Failed to search user items: ${error.message}`);
     }
   }
@@ -444,7 +444,7 @@ class UserItemService {
       return sharedItems as unknown as IUserItem[];
 
     } catch (error: any) {
-      logger.error('Failed to get shared items:', error);
+      secureLog('error', 'Failed to get shared items:', error);
       throw new Error(`Failed to get shared items: ${error.message}`);
     }
   }
@@ -477,7 +477,7 @@ class UserItemService {
       return items as unknown as IUserItem[];
 
     } catch (error: any) {
-      logger.error('Failed to get public items:', error);
+      secureLog('error', 'Failed to get public items:', error);
       throw new Error(`Failed to get public items: ${error.message}`);
     }
   }
@@ -503,11 +503,11 @@ class UserItemService {
 
       await cacheService.clearUserCache(userId);
 
-      logger.info(`Bulk created ${createdItems.length} items for user ${userId}`);
+      secureLog('info', `Bulk created ${createdItems.length} items for user ${userId}`);
       return createdItems as unknown as IUserItem[];
 
     } catch (error: any) {
-      logger.error('Failed to bulk create items:', error);
+      secureLog('error', 'Failed to bulk create items:', error);
       throw new Error(`Failed to bulk create items: ${error.message}`);
     }
   }
@@ -526,7 +526,7 @@ class UserItemService {
       return items;
 
     } catch (error: any) {
-      logger.error('Failed to export user items:', error);
+      secureLog('error', 'Failed to export user items:', error);
       throw new Error(`Failed to export user items: ${error.message}`);
     }
   }

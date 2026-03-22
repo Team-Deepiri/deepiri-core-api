@@ -1,7 +1,7 @@
 import express, { Response, NextFunction } from 'express';
 import challengeService from '../services/challengeService';
 import authenticateJWT from '../middleware/authenticateJWT';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { AuthenticatedRequest } from '../types';
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router.post('/generate', authenticateJWT, async (req: AuthenticatedRequest, res:
     const challenge = await challengeService.generateChallenge(req.user!.id, taskId);
     res.status(201).json({ success: true, data: challenge });
   } catch (error: any) {
-    logger.error('Error generating challenge:', error);
+    secureLog('error', 'Error generating challenge:', error);
     next(error);
   }
 });
@@ -26,7 +26,7 @@ router.get('/', authenticateJWT, async (req: AuthenticatedRequest, res: Response
     const challenges = await challengeService.getUserChallenges(req.user!.id, req.query);
     res.json({ success: true, data: challenges });
   } catch (error: any) {
-    logger.error('Error fetching challenges:', error);
+    secureLog('error', 'Error fetching challenges:', error);
     next(error);
   }
 });
@@ -36,7 +36,7 @@ router.get('/:id', authenticateJWT, async (req: AuthenticatedRequest, res: Respo
     const challenge = await challengeService.getChallengeById(req.params.id, req.user!.id);
     res.json({ success: true, data: challenge });
   } catch (error: any) {
-    logger.error('Error fetching challenge:', error);
+    secureLog('error', 'Error fetching challenge:', error);
     next(error);
   }
 });
@@ -50,7 +50,7 @@ router.post('/:id/complete', authenticateJWT, async (req: AuthenticatedRequest, 
     );
     res.json({ success: true, data: challenge });
   } catch (error: any) {
-    logger.error('Error completing challenge:', error);
+    secureLog('error', 'Error completing challenge:', error);
     next(error);
   }
 });

@@ -213,4 +213,4 @@ userSchema.methods.updateStats = function(adventure: any) {
 
 const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
 export default User;
-
+module.exports = User;

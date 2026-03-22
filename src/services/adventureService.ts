@@ -5,7 +5,7 @@ import Notification from '../models/Notification';
 import aiOrchestrator from './aiOrchestrator';
 import externalApiService from './externalApiService';
 import cacheService from './cacheService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import mongoose from 'mongoose';
 
 interface AdventureRequestData {
@@ -66,7 +66,7 @@ class AdventureService {
       const cacheKey = `adventure:${userId}:${requestData.location.lat}:${requestData.location.lng}:${requestData.interests.join(',')}`;
       const cachedAdventure = await cacheService.get(cacheKey);
       if (cachedAdventure) {
-        logger.info(`Returning cached adventure for user ${userId}`);
+        secureLog('info', `Returning cached adventure for user ${userId}`);
         return cachedAdventure as IAdventure;
       }
 
@@ -151,12 +151,12 @@ class AdventureService {
       await user.updateStats(adventure);
 
       const generationTime = Date.now() - startTime;
-      logger.info(`Adventure generated for user ${userId} in ${generationTime}ms`);
+      secureLog('info', `Adventure generated for user ${userId} in ${generationTime}ms`);
 
       return adventure;
 
     } catch (error: any) {
-      logger.error('Adventure generation failed:', error);
+      secureLog('error', 'Adventure generation failed:', error);
       throw new Error(`Failed to generate adventure: ${error.message}`);
     }
   }
@@ -178,7 +178,7 @@ class AdventureService {
 
       return adventure;
     } catch (error: any) {
-      logger.error('Failed to get adventure:', error);
+      secureLog('error', 'Failed to get adventure:', error);
       throw new Error(`Failed to get adventure: ${error.message}`);
     }
   }
@@ -198,7 +198,7 @@ class AdventureService {
 
       return adventures;
     } catch (error: any) {
-      logger.error('Failed to get user adventures:', error);
+      secureLog('error', 'Failed to get user adventures:', error);
       throw new Error(`Failed to get user adventures: ${error.message}`);
     }
   }
@@ -232,11 +232,11 @@ class AdventureService {
         });
       }
 
-      logger.info(`Adventure ${adventureId} started by user ${userId}`);
+      secureLog('info', `Adventure ${adventureId} started by user ${userId}`);
       return adventure;
 
     } catch (error: any) {
-      logger.error('Failed to start adventure:', error);
+      secureLog('error', 'Failed to start adventure:', error);
       throw new Error(`Failed to start adventure: ${error.message}`);
     }
   }
@@ -287,11 +287,11 @@ class AdventureService {
         });
       }
 
-      logger.info(`Adventure ${adventureId} completed by user ${userId}`);
+      secureLog('info', `Adventure ${adventureId} completed by user ${userId}`);
       return adventure;
 
     } catch (error: any) {
-      logger.error('Failed to complete adventure:', error);
+      secureLog('error', 'Failed to complete adventure:', error);
       throw new Error(`Failed to complete adventure: ${error.message}`);
     }
   }
@@ -349,7 +349,7 @@ class AdventureService {
       return adventure;
 
     } catch (error: any) {
-      logger.error('Failed to update adventure step:', error);
+      secureLog('error', 'Failed to update adventure step:', error);
       throw new Error(`Failed to update adventure step: ${error.message}`);
     }
   }
@@ -382,7 +382,7 @@ class AdventureService {
       return similarAdventures;
 
     } catch (error: any) {
-      logger.error('Failed to get adventure recommendations:', error);
+      secureLog('error', 'Failed to get adventure recommendations:', error);
       throw new Error(`Failed to get adventure recommendations: ${error.message}`);
     }
   }
@@ -422,7 +422,7 @@ class AdventureService {
       return adventure;
 
     } catch (error: any) {
-      logger.error('Failed to share adventure:', error);
+      secureLog('error', 'Failed to share adventure:', error);
       throw new Error(`Failed to share adventure: ${error.message}`);
     }
   }
@@ -457,7 +457,7 @@ class AdventureService {
       );
 
     } catch (error: any) {
-      logger.error('Failed to schedule adventure notifications:', error);
+      secureLog('error', 'Failed to schedule adventure notifications:', error);
     }
   }
 
@@ -516,7 +516,7 @@ class AdventureService {
       return analytics;
 
     } catch (error: any) {
-      logger.error('Failed to get adventure analytics:', error);
+      secureLog('error', 'Failed to get adventure analytics:', error);
       throw new Error(`Failed to get adventure analytics: ${error.message}`);
     }
   }

@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import UserItem from '../models/UserItem';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { UserItemRequest } from '../types';
 
 export const verifyItemOwnership = async (req: UserItemRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -34,7 +34,7 @@ export const verifyItemOwnership = async (req: UserItemRequest, res: Response, n
     next();
 
   } catch (error: any) {
-    logger.error('Item ownership verification error:', error);
+    secureLog('error', 'Item ownership verification error:', error);
     res.status(500).json({
       success: false,
       message: 'Error verifying item ownership'
@@ -83,7 +83,7 @@ export const verifySharedItemAccess = async (req: UserItemRequest, res: Response
     next();
 
   } catch (error: any) {
-    logger.error('Shared item access verification error:', error);
+    secureLog('error', 'Shared item access verification error:', error);
     res.status(500).json({
       success: false,
       message: 'Error verifying item access'
@@ -175,7 +175,7 @@ export const auditItemOperation = (operation: string) => {
         success: res.statusCode < 400
       };
 
-      logger.info('Item operation audit:', logData);
+      secureLog('info', 'Item operation audit:', logData);
       
       return originalSend(data);
     };

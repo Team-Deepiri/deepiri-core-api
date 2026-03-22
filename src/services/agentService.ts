@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import AgentSession, { IAgentSession } from '../models/AgentSession';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 class AgentService {
   private client: OpenAI | null = null;
@@ -16,7 +16,7 @@ class AgentService {
 
   initialize(): void {
     if (!process.env.OPENAI_API_KEY) {
-      logger.warn('OPENAI_API_KEY missing: Agent features disabled');
+      secureLog('warn', 'OPENAI_API_KEY missing: Agent features disabled');
       return;
     }
     this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });

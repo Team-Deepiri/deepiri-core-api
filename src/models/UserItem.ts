@@ -362,4 +362,4 @@ userItemSchema.statics.getItemsByCategory = async function(userId: string, categ
 
 const UserItem: Model<IUserItem> = mongoose.model<IUserItem, IUserItemModel>('UserItem', userItemSchema);
 export default UserItem;
-
+module.exports = UserItem;

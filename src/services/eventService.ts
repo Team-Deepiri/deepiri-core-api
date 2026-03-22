@@ -3,7 +3,7 @@ import User from '../models/User';
 import externalApiService from './externalApiService';
 import aiOrchestrator from './aiOrchestrator';
 import cacheService from './cacheService';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import mongoose from 'mongoose';
 
 interface EventData {
@@ -55,14 +55,14 @@ class EventService {
         event.aiSuggestions = suggestions;
         await event.save();
       } catch (error: any) {
-        logger.warn('Failed to generate AI suggestions for event:', error);
+        secureLog('warn', 'Failed to generate AI suggestions for event:', error);
       }
 
-      logger.info(`Event created: ${event.name} by user ${userId}`);
+      secureLog('info', `Event created: ${event.name} by user ${userId}`);
       return event;
 
     } catch (error: any) {
-      logger.error('Failed to create event:', error);
+      secureLog('error', 'Failed to create event:', error);
       throw new Error(`Failed to create event: ${error.message}`);
     }
   }
@@ -80,7 +80,7 @@ class EventService {
 
       return event;
     } catch (error: any) {
-      logger.error('Failed to get event:', error);
+      secureLog('error', 'Failed to get event:', error);
       throw new Error(`Failed to get event: ${error.message}`);
     }
   }
@@ -109,7 +109,7 @@ class EventService {
       };
 
     } catch (error: any) {
-      logger.error('Failed to get nearby events:', error);
+      secureLog('error', 'Failed to get nearby events:', error);
       throw new Error(`Failed to get nearby events: ${error.message}`);
     }
   }
@@ -128,11 +128,11 @@ class EventService {
       Object.assign(event, updateData);
       await event.save();
 
-      logger.info(`Event updated: ${event.name} by user ${userId}`);
+      secureLog('info', `Event updated: ${event.name} by user ${userId}`);
       return event;
 
     } catch (error: any) {
-      logger.error('Failed to update event:', error);
+      secureLog('error', 'Failed to update event:', error);
       throw new Error(`Failed to update event: ${error.message}`);
     }
   }
@@ -146,11 +146,11 @@ class EventService {
 
       await event.addAttendee(new mongoose.Types.ObjectId(userId));
 
-      logger.info(`User ${userId} joined event ${eventId}`);
+      secureLog('info', `User ${userId} joined event ${eventId}`);
       return event;
 
     } catch (error: any) {
-      logger.error('Failed to join event:', error);
+      secureLog('error', 'Failed to join event:', error);
       throw new Error(`Failed to join event: ${error.message}`);
     }
   }
@@ -164,11 +164,11 @@ class EventService {
 
       await event.removeAttendee(new mongoose.Types.ObjectId(userId));
 
-      logger.info(`User ${userId} left event ${eventId}`);
+      secureLog('info', `User ${userId} left event ${eventId}`);
       return event;
 
     } catch (error: any) {
-      logger.error('Failed to leave event:', error);
+      secureLog('error', 'Failed to leave event:', error);
       throw new Error(`Failed to leave event: ${error.message}`);
     }
   }
@@ -182,11 +182,11 @@ class EventService {
 
       await event.addReview(new mongoose.Types.ObjectId(userId), rating, comment);
 
-      logger.info(`User ${userId} reviewed event ${eventId} with rating ${rating}`);
+      secureLog('info', `User ${userId} reviewed event ${eventId} with rating ${rating}`);
       return event;
 
     } catch (error: any) {
-      logger.error('Failed to review event:', error);
+      secureLog('error', 'Failed to review event:', error);
       throw new Error(`Failed to review event: ${error.message}`);
     }
   }
@@ -204,11 +204,11 @@ class EventService {
 
       await event.updateStatus('cancelled');
 
-      logger.info(`Event ${eventId} cancelled by user ${userId}`);
+      secureLog('info', `Event ${eventId} cancelled by user ${userId}`);
       return event;
 
     } catch (error: any) {
-      logger.error('Failed to cancel event:', error);
+      secureLog('error', 'Failed to cancel event:', error);
       throw new Error(`Failed to cancel event: ${error.message}`);
     }
   }
@@ -239,7 +239,7 @@ class EventService {
       return events;
 
     } catch (error: any) {
-      logger.error('Failed to get user events:', error);
+      secureLog('error', 'Failed to get user events:', error);
       throw new Error(`Failed to get user events: ${error.message}`);
     }
   }
@@ -261,7 +261,7 @@ class EventService {
       return categories;
 
     } catch (error: any) {
-      logger.error('Failed to get event categories:', error);
+      secureLog('error', 'Failed to get event categories:', error);
       throw new Error(`Failed to get event categories: ${error.message}`);
     }
   }
@@ -293,7 +293,7 @@ class EventService {
       return analytics;
 
     } catch (error: any) {
-      logger.error('Failed to get event analytics:', error);
+      secureLog('error', 'Failed to get event analytics:', error);
       throw new Error(`Failed to get event analytics: ${error.message}`);
     }
   }
@@ -320,7 +320,7 @@ class EventService {
       return events;
 
     } catch (error: any) {
-      logger.error('Failed to get popular events:', error);
+      secureLog('error', 'Failed to get popular events:', error);
       throw new Error(`Failed to get popular events: ${error.message}`);
     }
   }
@@ -351,7 +351,7 @@ class EventService {
       return events;
 
     } catch (error: any) {
-      logger.error('Failed to get trending events:', error);
+      secureLog('error', 'Failed to get trending events:', error);
       throw new Error(`Failed to get trending events: ${error.message}`);
     }
   }
@@ -383,7 +383,7 @@ class EventService {
       return events;
 
     } catch (error: any) {
-      logger.error('Failed to search events:', error);
+      secureLog('error', 'Failed to search events:', error);
       throw new Error(`Failed to search events: ${error.message}`);
     }
   }
@@ -428,15 +428,15 @@ class EventService {
             await existingEvent.save();
           }
         } catch (error: any) {
-          logger.warn(`Failed to sync external event ${externalEvent.eventId}:`, error);
+          secureLog('warn', `Failed to sync external event ${externalEvent.eventId}:`, error);
         }
       }
 
-      logger.info(`Synced ${syncedCount} external events`);
+      secureLog('info', `Synced ${syncedCount} external events`);
       return syncedCount;
 
     } catch (error: any) {
-      logger.error('Failed to sync external events:', error);
+      secureLog('error', 'Failed to sync external events:', error);
       throw new Error(`Failed to sync external events: ${error.message}`);
     }
   }

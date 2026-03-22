@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 import { Server as HttpServer } from 'http';
 
 interface CustomError extends Error {
@@ -11,7 +11,7 @@ interface CustomError extends Error {
 export const errorHandler = (err: CustomError, req: Request, res: Response, next: NextFunction): void => {
   const requestId = (req as any).requestId || 'unknown';
   
-  logger.error('Request error occurred', {
+  secureLog('error', 'Request error occurred', {
     requestId,
     method: req.method,
     url: req.url,
@@ -90,7 +90,7 @@ export const asyncHandler = (fn: Function) => {
 export const notFoundHandler = (req: Request, res: Response): void => {
   const requestId = (req as any).requestId || 'unknown';
   
-  logger.warn('Route not found', {
+  secureLog('warn', 'Route not found', {
     requestId,
     method: req.method,
     url: req.url,
@@ -109,20 +109,20 @@ export const notFoundHandler = (req: Request, res: Response): void => {
 
 export const gracefulShutdown = (server: HttpServer) => {
   return (signal: string) => {
-    logger.info(`Received ${signal}, shutting down gracefully`);
+    secureLog('info', `Received ${signal}, shutting down gracefully`);
     
     server.close((err?: Error) => {
       if (err) {
-        logger.error('Error during server shutdown:', err);
+        secureLog('error', 'Error during server shutdown:', err);
         process.exit(1);
       }
       
-      logger.info('Server closed successfully');
+      secureLog('info', 'Server closed successfully');
       process.exit(0);
     });
 
     setTimeout(() => {
-      logger.error('Forced shutdown after timeout');
+      secureLog('error', 'Forced shutdown after timeout');
       process.exit(1);
     }, 10000);
   };

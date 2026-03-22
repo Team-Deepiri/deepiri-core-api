@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import logger from '../utils/logger';
+import { secureLog } from '../utils/secureLogger';
 
 function parseList(value: string | undefined): string[] {
   if (!value) return [];
@@ -14,12 +14,12 @@ export default function ipFilter() {
     const ip = ((req.headers['x-forwarded-for'] as string) || (req.socket.remoteAddress || '')).toString();
 
     if (deny.length && deny.some(block => ip.includes(block))) {
-      logger.warn(`Blocked IP ${ip}`);
+      secureLog('warn', `Blocked IP ${ip}`);
       res.status(403).json({ success: false, message: 'Forbidden' });
       return;
     }
     if (allow.length && !allow.some(ok => ip.includes(ok))) {
-      logger.warn(`Denied IP ${ip} not in allow list`);
+      secureLog('warn', `Denied IP ${ip} not in allow list`);
       res.status(403).json({ success: false, message: 'Forbidden' });
       return;
     }
